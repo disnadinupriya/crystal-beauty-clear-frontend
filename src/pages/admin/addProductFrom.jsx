@@ -32,37 +32,41 @@ export default function AddProductFrom() {
     const [image, setImage] = useState(null);
     const [stock, setStock] = useState("");
 
-    function handleSubmit(){
-        console.log("Add Product button clicked");
+    function handleSubmit() {
+    console.log("Add Product button clicked");
 
-            const altNameInArray = altName.split(",");
-            const product = {
-            productId: productId,
-            name: name,
-            altName: altNameInArray  ,
-            price: price,
-            labelPrice: labelPrice,
-            description: description,
-            image: ["https://lipsum.app/id/24/1600x900", "https://lipsum.app/id/25/1600x900", "https://lipsum.app/id/26/1600x900"],
-            stock: parseInt(stock),
-        };
-        const token = localStorage.getItem("token");
-        console.log("Token:", token);
+    const altNameInArray = altName.split(",").map(s => s.trim()); // trim spaces
 
-       axios.post(import.meta.env.VITE_BACKEND_URL + "/api/product", product, {
-  headers: {
-    "Authorization": `Bearer ${token}`
-  },
+    const product = {
+        productid: productId,               // lowercase 'productid'
+        name: name,
+        altName: altNameInArray,
+        price: Number(price),               // convert to number
+        lablePrice: Number(labelPrice),    // 'lablePrice' spelling, number type
+        description: description,
+        Image: [                           // capital 'I' and array
+            "https://lipsum.app/id/24/1600x900",
+            "https://lipsum.app/id/25/1600x900",
+            "https://lipsum.app/id/26/1600x900"
+        ],
+        stock: parseInt(stock, 10),        // parseInt with radix
+    };
 
-        }).then((response) => {
-            console.log("Product to be added:", product);
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
+
+    axios.post(import.meta.env.VITE_BACKEND_URL + "/api/product", product, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        },
+    }).then((response) => {
+        console.log("Product to be added:", product);
         toast.success("Product added successfully!");
-        }).catch((error) => {
-            console.error("Error adding product:", error);
-        })
-         
-        
-    }
+    }).catch((error) => {
+        console.error("Error adding product:", error);
+    });
+}
+
 
 
 return (
