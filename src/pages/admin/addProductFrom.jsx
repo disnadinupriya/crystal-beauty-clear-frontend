@@ -32,6 +32,8 @@ export default function AddProductFrom() {
     const [image, setImage] = useState(null);
     const [stock, setStock] = useState("");
 
+    const navigate = useNavigate(); 
+
     function handleSubmit() {
     console.log("Add Product button clicked");
 
@@ -62,8 +64,10 @@ export default function AddProductFrom() {
     }).then((response) => {
         console.log("Product to be added:", product);
         toast.success("Product added successfully!");
+        navigate("/admin/products");
     }).catch((error) => {
         console.error("Error adding product:", error);
+        toast.error("Failed to add product. Please try again.");
     });
 }
 
@@ -98,3 +102,7 @@ return (
    
 );
 }
+
+
+//https://guaxykwlwvybejqayzfg.supabase.co
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1YXh5a3dsd3Z5YmVqcWF5emZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MTY3OTMsImV4cCI6MjA2OTk5Mjc5M30.29sck266mcjaHW8OeJeGgbWcOVl88yu6CiF687Odi3k
