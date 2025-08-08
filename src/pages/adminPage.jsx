@@ -6,6 +6,7 @@ import AdminProductsPage from "./admin/Products";
 import React from "react";
 import { useState } from "react";
 import AddProductFrom from "./admin/addProductFrom.jsx";
+import EditProduct from "./admin/editProduct.jsx";
 
 
 
@@ -29,6 +30,7 @@ export default function AdminPage() {
                 <Route path="/products" element={<AdminProductsPage/>}/>
                 <Route path="/orders" element={<h1>Orders</h1>}/>
                 <Route path="/addProduct" element={<h1>{<AddProductFrom/>}</h1>}/>
+                <Route path="/editProduct/" element={<h1><EditProduct/></h1>}/>
               </Routes>
            </div>
         </div>

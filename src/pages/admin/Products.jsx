@@ -2,26 +2,63 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { FaTrashAlt } from "react-icons/fa";
+import React from "react";
+import { toast } from "react-hot-toast";
+import { GrEdit } from "react-icons/gr";
+import Loader from "../../components/loader";
+import { useNavigate } from "react-router-dom";
+import EditProduct from "./editProduct.jsx";
 
 
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const url = import.meta.env.VITE_BACKEND_URL + "/api/product";
-    console.log("Backend URL:", url);
-
-    axios
-      .get(url)
+    if(!loaded){
+      axios
+      .get(import.meta.env.VITE_BACKEND_URL + "/api/product")
       .then((response) => {
         console.log("Products fetched successfully:", response.data);
         setProducts(response.data);
+        setLoaded(true);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
       });
-  }, []);
+    }
+
+    
+  }, [loaded]);
+
+
+  async function handleDelete(id) {
+    const token = localStorage.getItem("token");
+    if (token ==null){
+      toast.error("You are not authorized to delete this product.");
+      return;
+    }
+    try {
+      console.log("Deleting product with ID:", id);
+    await axios.delete(import.meta.env.VITE_BACKEND_URL + "/api/product/" + id, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+   // setLoaded(false); // Reset loaded state to refetch products
+    // ✅ Remove the product from state instead of refetching
+    setProducts((prev) => prev.filter((product) => product._id !== id));
+
+    toast.success("Product deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    toast.error("Failed to delete product. Please try again.");
+  }
+    
+  }
 
   return (
     <div className="w-full h-full rounded-lg p-4 relative">
@@ -29,7 +66,7 @@ export default function AdminProductsPage() {
             <FaPlus/>
       </  Link>
 
-      <table className="min-w-full bg-white shadow-md rounded-lg">
+      {loaded && <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead>
           <tr>
               {/*productId,name,price,description,price,lablePrice,stock*/}
@@ -47,27 +84,53 @@ export default function AdminProductsPage() {
             console.log("Rendering product:", product.productId);
             return (
              
-            <tr key={product.productId} className="cursor-pointer hover:bg-gray-800 hover:text-white">
+            <tr key={product._id} className="cursor-pointer hover:bg-gray-500 hover:text-white">
               <td className="px-6 py-4 border-b border-gray-200">{product._id}</td>
               <td className="px-6 py-4 border-b border-gray-200">{product.name}</td>
               <td className="px-6 py-4 border-b border-gray-200">{product.price}</td>
               <td className="px-6 py-4 border-b border-gray-200">{product.lablePrice}</td>
               <td className="px-6 py-4 border-b border-gray-200">{product.stock}</td>
-              <td className="px-6 py-4 border-b border-gray-200">
-                {/* Actions can be added here */}
-              </td>
+              
+              <td>
+        <div className="flex justify-center">
+          <FaTrashAlt
+            className="text-[20px] mr-4 hover:text-red-600"
+            onClick={() =>{ handleDelete(product._id)
+            
+            }
+            }
+          />
+          <GrEdit className="text-[20px] mr-4 hover:text-blue-600"
+                  onClick={() =>
+                  {
+                    // Navigate to edit product from
+                    navigate(`/admin/editProduct/`,{
+                      state: {
+                        productId: product._id,
+                        name: product.name,
+                        altName: product.altName,
+                        price: product.price,
+                        lablePrice: product.lablePrice,
+                        description: product.description,
+                        stock: product.stock
+                      }
+                    });
+
+                  }
+                  } />
+        </div>
+      </td>
             </tr>
             );
           })
           }
           
         </tbody>
-      </table>
-          
-      {
+      </table>}
+      {!loaded && <Loader/>}
       
         
-    }
+    
 
       </div>
   );

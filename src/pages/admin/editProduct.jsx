@@ -1,11 +1,5 @@
-/*product id
-name
-alttNaame
-price
-lablePrice
-description
-image
-stock*/
+
+
 
 import { DiEnvato } from "react-icons/di";
 import { Link } from "react-router-dom";
@@ -21,21 +15,34 @@ import { useParams } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import mediaUpload from "../../../utils/mediaUpload.jsx";
 
+
+
+
+
 import { createClient } from "@supabase/supabase-js";
 
 
-export default function AddProductFrom() {
+export default function    EditProductFrom() {
+    const locationData = useLocation();
+        const navigate = useNavigate(); 
 
-    const [productId, setProductId] = useState("");
-    const [name, setName] = useState("");
-    const [altName, setAltName] = useState("");
-    const [price, setPrice] = useState("");
-    const [labelPrice, setLabelPrice] = useState("");
-    const [description, setDescription] = useState("");
-    const [images, setImages] = useState([]);
-    const [stock, setStock] = useState("");
+    
+    if(locationData.state == null ) {
+        toast.error("No product data found to edit.");
+        window.location.href = "/admin/products"; // Redirect to products page
+        // Prevent further execution
+    }
+    console.log("Location:", locationData.state);
 
-    const navigate = useNavigate(); 
+    const [productId, setProductId] = useState(locationData.state.productId); // Use product._id if available
+    const [name, setName] = useState(locationData.state.name || "");
+    const [altName, setAltName] = useState(locationData.state.altName ? locationData.state.altName.join(", ") : "");
+    const [price, setPrice] = useState(locationData.state.price || "");
+    const [labelPrice, setLabelPrice] = useState(locationData.state.lablePrice || "");
+    const [description, setDescription] = useState(locationData.state.description || "");
+    const [images, setImages] = useState( []);
+    const [stock, setStock] = useState(locationData.state.stock || "");
+
 
 
 
@@ -96,10 +103,10 @@ export default function AddProductFrom() {
 return (
   <div className="w-full h-screen bg-red-900 p-4 flex justify-center items-center">
   <div className="bg-white p-6 rounded-lg shadow-xl w-[500px] flex flex-col items-center">
-    <h1 className="text-xl font-bold mb-4">Add Product</h1>
+    <h1 className="text-xl font-bold mb-4">Edit Product</h1>
 
     {/* Form Inputs */}
-    <input value={productId} onChange={(e) => setProductId(e.target.value)} className="w-full h-[40px] border border-gray-300 rounded-xl mb-2 px-3 text-center" placeholder="Product ID" />
+    <input disabled value={productId} onChange={(e) => setProductId(e.target.value)} className="w-full h-[40px] border border-gray-300 rounded-xl mb-2 px-3 text-center" placeholder="Product ID" />
     <input value={name} onChange={(e) => setName(e.target.value)} className="w-full h-[40px] border border-gray-300 rounded-xl mb-2 px-3 text-center" placeholder="Name" />
     <input value={altName} onChange={(e) => setAltName(e.target.value)} className="w-full h-[40px] border border-gray-300 rounded-xl mb-2 px-3 text-center" placeholder="Alt Name (comma separated)" />
     <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" className="w-full h-[40px] border border-gray-300 rounded-xl mb-2 px-3 text-center" placeholder="Price" />
@@ -114,7 +121,7 @@ return (
         Cancel
       </Link>
       <button onClick={handleSubmit} className="w-[150px] h-[40px] bg-green-500 rounded-xl text-white flex justify-center items-center hover:bg-green-600">
-        Add Product
+        Edit Product
       </button>
     </div>
   </div>
