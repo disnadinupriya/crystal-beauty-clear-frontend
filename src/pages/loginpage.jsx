@@ -1,7 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import register from "./client/register";
 
 
 
@@ -10,8 +11,11 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     function handleLogin() {
+        setLoading(true);
+
         console.log("login button clicked");
         console.log("email:", email);
         console.log("password:", password);
@@ -33,10 +37,12 @@ export default function LoginPage() {
                 //window.location.href = "/";
                 navigate("/");  
             }
+        setLoading(false);
 
         }).catch((error) => {
             console.log("Login failed:", error.response.data.massage);
             toast.error(error.response.data.message || "Login failed");
+            setLoading(false);
 
         });
     }
@@ -67,7 +73,18 @@ export default function LoginPage() {
                     } 
                      className = "w-[400px] h-[50px] rounded-xl m-5 border border-white text-center" type="password" placeholder = "password"
                      />
-                    <button onClick={handleLogin} className = "w-[200px] h-[50px] rounded-2xl m-5 bg-green-600 hover:bg-green-700 cursor-pointer">Login</button>
+                    <button onClick={handleLogin} className = "w-[200px] h-[50px] rounded-2xl m-5 bg-green-600 hover:bg-green-700 cursor-pointer">
+                      
+                        
+                        {
+                            loading?" Loading...":"Login"
+                        }
+                        </button>
+                    <p className='text-white'>Don't have an account? 
+                        &nbsp;
+                         <span className='text-blue-500 cursor-pointer'>
+                            <Link to="/register">Register now</Link>
+                            </span></p>
                 </div>
 
             
