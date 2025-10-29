@@ -9,6 +9,7 @@ import { BrowserRouter, Route,Routes } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import RegisterPage from './pages/client/register'
 import HomePage from './pages/client/homePage'
+import CheckOutPage from './pages/client/checkOut.jsx'
 
 
 
@@ -25,12 +26,13 @@ function App() {
         <Route path="/*" element={<HomePage/>}/>
         <Route path="/testing" element={<Testing/>}/>
         <Route path="/register" element={<RegisterPage/>}/>
+        
    </Routes>
    </BrowserRouter>
     
   )
 }
-
+ 
 export default App
 
 
