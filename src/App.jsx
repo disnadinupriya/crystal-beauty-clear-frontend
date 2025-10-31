@@ -1,6 +1,4 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import './App.css'
 import LoginPage from './pages/loginpage'
 import AdminPage from './pages/adminPage'
@@ -9,7 +7,7 @@ import { BrowserRouter, Route,Routes } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import RegisterPage from './pages/client/register'
 import HomePage from './pages/client/homePage'
-import CheckOutPage from './pages/client/checkOut.jsx'
+
 
 
 

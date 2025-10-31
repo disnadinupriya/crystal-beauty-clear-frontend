@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 import Loader from "../../components/loader.jsx"; // Assuming you have a Loader component
 import ImageSlider from "../../components/imageslider.jsx"; // Assuming you have an ImageSlider component
-import getCart, { addToCart } from "../../../utils/cart.js";
+
 
 
 
@@ -43,7 +43,7 @@ export default function ProductOverView() {
   }, [ status]);
 
   return (
-    <div className="h-full w-full \">
+    <div className="h-full w-full ">
       {
         status =="loading" && <Loader />
       }
@@ -81,10 +81,9 @@ export default function ProductOverView() {
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
                   onClick={() => {
                    
-                       const updatedCart = addToCart(product, 1);
-                       toast.success("Added to cart!");
-                          console.log("Product added to cart:", updatedCart);
-}}
+                      
+                  }
+}
 
                    
                   >
@@ -94,16 +93,6 @@ export default function ProductOverView() {
               
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   onClick={() => {
-                    navigate("/checkout",
-                    { state: { item: [ { 
-                      productid: product.productid,
-                      name: product.name,
-                      altName: product.altName,
-                      price: product.price,
-                      lablePrice: product.lablePrice,
-                      image: product.Image?.[0],
-                      quantity: 1,
-                    }] } });
                   }}
                   >
                   Buy Now
