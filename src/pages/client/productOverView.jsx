@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 
 import Loader from "../../components/loader.jsx"; // Assuming you have a Loader component
 import ImageSlider from "../../components/imageslider.jsx"; // Assuming you have an ImageSlider component
+import { addToCart, getCart } from "../../../utils/cart.js";
+
 
 
 
@@ -80,7 +82,9 @@ export default function ProductOverView() {
               <div className="w-full flex justify-center mb-4">
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
                   onClick={() => {
-                   
+                   addToCart(product,1);
+                   toast.success("Product added to cart");
+                   console.log(getCart());
                       
                   }
 }
@@ -93,6 +97,7 @@ export default function ProductOverView() {
               
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   onClick={() => {
+                    
                   }}
                   >
                   Buy Now
