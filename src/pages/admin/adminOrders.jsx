@@ -5,7 +5,7 @@ import { IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
 
-export default function adminOrdersPage() {
+export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [modelIsDisplaing, setModelIsDisplaing] = useState(false);
@@ -121,62 +121,68 @@ export default function adminOrdersPage() {
               </tbody>
             </table>
             {modelIsDisplaing && (
-              <div
-                className="fixed bg-[#00000090] w-full h-full top-0 left-0 flex justify-center items-center
-                        "
-              >
-                <div className="bg-white p-6 rounded-lg w-[600px] h-[600px] relative max-w-[600px] max-h-[600px] ">
-                  <div className="w-ful h-[200px] bg-red-400">
-                    <h1 className="text-2xl font-bold text-white">
-                      Order ID : {displaingOrder.orderId}
-                    </h1>
-                    <h1 className="text-2xl font-bold text-white">
-                      Order Date:{" "}
-                      {new Date(displaingOrder.date).toLocaleDateString()}
-                      <h1 className="text-2xl font-bold text-white">
-                        Order Status: {displaingOrder.status}
-                      </h1>
-                      <h1 className="text-2xl font-bold text-white">
-                        Order Total: LKR {displaingOrder.total}.00
-                      </h1>
-                    </h1>
+              <div className="fixed bg-[#00000090] w-full h-full top-0 left-0 flex justify-center items-center">
+                <div className="bg-white rounded-lg w-[600px] h-[600px] relative max-w-[600px] max-h-[600px] overflow-hidden">
+                  <div className="w-full bg-red-400 p-6">
+                    <div className="mb-4">
+                      <h2 className="text-2xl font-bold text-white">
+                        Order ID: {displaingOrder?.orderId || "-"}
+                      </h2>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-lg text-white">
+                        <span className="font-medium">Date: </span>
+                        {displaingOrder?.date ? new Date(displaingOrder.date).toLocaleDateString() : "-"}
+                      </div>
+                      <div className="text-lg text-white">
+                        <span className="font-medium">Status: </span>
+                        {displaingOrder?.status || "-"}
+                      </div>
+                      <div className="text-lg text-white">
+                        <span className="font-medium">Total: </span>
+                        LKR {displaingOrder?.total || "0"}.00
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full h-[400px] max-h-[400px] overflow-y-scroll">
-                    {displaingOrder.billItems.map((item, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className="flex justify-between items-center"
-                        >
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-[100px] h-[100px] object-cover"
-                            />
-                          <h1 className="text-2xl font-bold text-gray-800">
-                            {item.name}
-                          </h1>
-                          <h1 className="text-2xl font-bold text-gray-800">
-                            LKR {item.price}.00
-                          </h1>
-                          <h1 className="text-2xl font-bold text-gray-800">
-                            {item.quantity}
-                          </h1>
-                          <h1 className="text-2xl font-bold text-gray-800">
-                            LKR {item.total}.00
-                          </h1>
+
+                  <div className="w-full h-[calc(100%-200px)] overflow-y-auto p-6">
+                    {(displaingOrder?.billItems || []).map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-4 mb-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={item.Image || item.image}
+                            alt={item.ProductName || item.name}
+                            className="w-[80px] h-[80px] object-cover rounded-md"
+                          />
+                          <div>
+                            <div className="font-semibold text-gray-800">
+                              {item.ProductName || item.name || "Unnamed Product"}
+                            </div>
+                            <div className="text-gray-600">
+                              LKR {item.price || 0}.00
+                            </div>
+                          </div>
                         </div>
-                      );
-                    })}
+                        <div className="text-right">
+                          <div className="text-gray-600">
+                            Quantity: {item.quantity || 0}
+                          </div>
+                          <div className="font-semibold text-gray-800">
+                            Total: LKR {((item.price || 0) * (item.quantity || 0)).toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+
                   <button
-                    className="w-[40px] h-[40px] rounded-full  flex justify-center item-center  shadow-xl
-                   shadow-black absolute right-[20px] top-[20px]"
-                    onClick={() => {
-                      setModelIsDisplaing(false);
-                    }}
+                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+                    onClick={() => setModelIsDisplaing(false)}
                   >
-                    <IoMdClose />
+                    <IoMdClose size={20} />
                   </button>
                 </div>
               </div>
