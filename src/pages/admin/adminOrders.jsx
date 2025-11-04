@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Loader from "../../components/loader";
 import { IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 
 export default function AdminOrdersPage() {
@@ -50,6 +51,25 @@ export default function AdminOrdersPage() {
     "date": "2025-11-01T09:40:41.227Z",
     "__v": 0
 }*/
+
+function changeOrderStatus(orderId,status){
+  const token = localStorage.getItem("token");
+  axios
+  .put(import.meta.env.VITE_BACKEND_URL + "/api/order/" + orderId, {
+    status: status,
+  }, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  .then((response) => {
+    console.log("Order status updated successfully:", response.data);
+    toast.success("Order status updated successfully");
+    
+    setLoaded(false);
+  })
+  .catch((error) => {
+    console.error("Error updating order status:", error);
+  });
+}
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-blue-50 to-white py-10 px-6">
       {loaded ? (
@@ -78,6 +98,7 @@ export default function AdminOrdersPage() {
                   <th className="px-4 py-3 text-left font-semibold">Status</th>
                   <th className="px-4 py-3 text-left font-semibold">Date</th>
                   <th className="px-4 py-3 text-left font-semibold">Total</th>
+                  <th className="px-4 py-3 text-left font-semibold">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -85,10 +106,7 @@ export default function AdminOrdersPage() {
                   <tr
                     key={order.orderId}
                     className="border-b hover:bg-blue-50 transition duration-200 text-center cursor-pointer"
-                    onClick={() => {
-                      setModelIsDisplaing(true);
-                      setDisplaingOrder(order);
-                    }}
+                    
                   >
                     <td className="px-4 py-3 font-semibold text-gray-800">
                       {order.orderId}
@@ -98,23 +116,34 @@ export default function AdminOrdersPage() {
                     <td className="px-4 py-3">{order.address}</td>
                     <td className="px-4 py-3">{order.phoneNumber}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          order.status === "Pending"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : order.status === "Delivered"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
+                      <select value={order.status} onChange={
+                        (e)=>{
+                          console.log(e.target.value)
+                          changeOrderStatus(order.orderId,e.target.value)
+                        }
+                      }>
+                        <option value={"Pending"}>Pending</option>
+                        <option value={"Delivered"}>Delivered</option>
+                        <option value={"Cancelled"}>Cancelled</option>
+                        <option value={"Processing"}>Processing</option>
+                      </select>
                     </td>
                     <td className="px-4 py-3 text-gray-600">
                       {new Date(order.date).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 font-semibold text-blue-700">
                       LKR {order.total}.00
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => {
+                          setModelIsDisplaing(true);
+                          setDisplaingOrder(order);
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                      >
+                        View
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -197,3 +226,8 @@ export default function AdminOrdersPage() {
     </div>
   );
 }
+
+
+//clint id=427147346815-85snsi8rq5kpt5ovqqrc2atbruib1jhr.apps.googleusercontent.com
+//https://console.cloud.google.com/
+//npm install @react-oauth/google@latest
