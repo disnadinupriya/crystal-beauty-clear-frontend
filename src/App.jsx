@@ -9,6 +9,8 @@ import RegisterPage from './pages/client/register'
 import HomePage from './pages/client/homePage'
 import CheckOutPage from './pages/client/checkOut.jsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import TestingResponse from './pages/client/test.jsx'
+import Header from './components/header.jsx'
 
 
 
@@ -18,9 +20,10 @@ function App() {
   return (
     <GoogleOAuthProvider clientId='427147346815-85snsi8rq5kpt5ovqqrc2atbruib1jhr.apps.googleusercontent.com'>
    <BrowserRouter>
-   <Toaster position="top-center"/>
- 
-   <Routes path="/*">
+  <Toaster position="top-center"/>
+  <Header />
+
+  <Routes path="/*">
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/admin/*" element={<AdminPage/>}/>
         
@@ -28,6 +31,7 @@ function App() {
         <Route path="/testing" element={<Testing/>}/>
         <Route path="/register" element={<RegisterPage/>}/>
         <Route path="/checkOut" element={<CheckOutPage/>}/>
+  <Route path="/res" element={<TestingResponse/>}/>
         
    </Routes>
    </BrowserRouter>
