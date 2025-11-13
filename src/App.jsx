@@ -11,6 +11,7 @@ import CheckOutPage from './pages/client/checkOut.jsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import TestingResponse from './pages/client/test.jsx'
 import Header from './components/header.jsx'
+import ForgetPassword from './pages/client/forgetPassword.jsx'
 
 
 
@@ -32,6 +33,7 @@ function App() {
         <Route path="/register" element={<RegisterPage/>}/>
         <Route path="/checkOut" element={<CheckOutPage/>}/>
   <Route path="/res" element={<TestingResponse/>}/>
+  <Route path="/forget" element={<ForgetPassword/>}/>
         
    </Routes>
    </BrowserRouter>
