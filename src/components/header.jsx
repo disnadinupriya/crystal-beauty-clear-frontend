@@ -57,7 +57,7 @@ export default function Header() {
         )}
       </header>
 
-      {/* --- Push Content Down --- */}
+      {/* --- Push Content Dow n --- */}
       <div className="h-[70px] md:h-[80px]"></div>
     </>
   );
