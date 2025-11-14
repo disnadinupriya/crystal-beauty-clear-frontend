@@ -1,73 +1,52 @@
-
-import './App.css'
-import LoginPage from './pages/loginpage'
-import AdminPage from './pages/adminPage'
-import Testing from './pages/testing'
-import { BrowserRouter, Route,Routes } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
-import RegisterPage from './pages/client/register'
-import HomePage from './pages/client/homePage'
-import CheckOutPage from './pages/client/checkOut.jsx'
-import { GoogleOAuthProvider } from '@react-oauth/google'
-import TestingResponse from './pages/client/test.jsx'
-import Header from './components/header.jsx'
-import ForgetPassword from './pages/client/forgetPassword.jsx'
+import LoginPage from "./pages/loginpage";
+import AdminPage from "./pages/adminPage";
+import Testing from "./pages/testing";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import RegisterPage from "./pages/client/register";
+import HomePage from "./pages/client/homePage";
+import CheckOutPage from "./pages/client/checkOut.jsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import TestingResponse from "./pages/client/test.jsx";
+import Header from "./components/header.jsx";
+import ForgetPassword from "./pages/client/forgetPassword.jsx";
 
 
 
+function AppContent() {
+  const location = useLocation();
 
+  // Routes where header should be hidden
+  const hideHeaderRoutes = ["/login", "/register","/forgetPassword"];
 
-function App() {
+  const hideHeader = hideHeaderRoutes.includes(location.pathname);
+
   return (
-    <GoogleOAuthProvider clientId='427147346815-85snsi8rq5kpt5ovqqrc2atbruib1jhr.apps.googleusercontent.com'>
-   <BrowserRouter>
-  <Toaster position="top-center"/>
-  <Header />
-
-  <Routes path="/*">
-        <Route path="/login" element={<LoginPage/>}/>
-        <Route path="/admin/*" element={<AdminPage/>}/>
-        
-        <Route path="/*" element={<HomePage/>}/>
-        <Route path="/testing" element={<Testing/>}/>
-        <Route path="/register" element={<RegisterPage/>}/>
-        <Route path="/checkOut" element={<CheckOutPage/>}/>
-  <Route path="/res" element={<TestingResponse/>}/>
-  <Route path="/forget" element={<ForgetPassword/>}/>
-        
-   </Routes>
-   </BrowserRouter>
-   </GoogleOAuthProvider>
-    
-  )
-}
- 
-export default App
-
-
-
-
-  
-
-/*return (
     <>
-    < div className='w-full h-screen bg-pink-200'>
-    <div className=' flex flex-col
-                    justify-center 
-                   items-center
-                   w-[500px]
-                   h-[500px]
-                   bg-slate-400
-                   relative  '
->
-      <div className='w-[90px] h-[90px] bg-red-400'></div>
-      <div className='w-[90px] h-[90px] bg-yellow-400 absolute right-[50px] top-[50px]'></div>
-      <div className='w-[90px] h-[90px] bg-blue-400 fixed right-[50px] bottom-[50px]'></div>
-      <div className='w-[90px] h-[90px] bg-green-400'></div> 
- </div>
-</div>
-     
-    
+      <Toaster position="top-center" />
+
+      {!hideHeader && <Header />}
+
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/*" element={<AdminPage />} />
+  <Route path="/*" element={<HomePage />} />
+        <Route path="/testing" element={<Testing />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/checkOut" element={<CheckOutPage />} />
+        <Route path="/res" element={<TestingResponse />} />
+        <Route path="/forgetPassword" element={<ForgetPassword />} />
+      </Routes>
     </>
-  )
-}*/
+  );
+}
+
+export default function App() {
+  return (
+    <GoogleOAuthProvider clientId="427147346815-85snsi8rq5kpt5ovqqrc2atbruib1jhr.apps.googleusercontent.com">
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </GoogleOAuthProvider>
+  );
+}

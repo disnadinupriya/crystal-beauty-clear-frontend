@@ -22,6 +22,14 @@ export default function LoginPage() {
         console.log(" Login successful:", response.data);
         toast.success("Login successful");
         localStorage.setItem("token", response.data.token);
+        // cache user for quick header updates and offline/development fallback
+        try {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+        } catch (e) {
+          console.warn("Failed to cache user in localStorage:", e);
+        }
+        // notify other parts of the app that auth changed
+        window.dispatchEvent(new Event("authChanged"));
         console.log(localStorage.getItem("token"));
 
         const user = response.data.user;
@@ -58,6 +66,12 @@ export default function LoginPage() {
         console.log(" Login successful:", response.data);
         toast.success("Login successful");
         localStorage.setItem("token", response.data.token);
+        try {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+        } catch (e) {
+          console.warn("Failed to cache user in localStorage:", e);
+        }
+        window.dispatchEvent(new Event("authChanged"));
         console.log(localStorage.getItem("token"));
 
         const user = response.data.user;
@@ -126,7 +140,16 @@ export default function LoginPage() {
             <span className="text-blue-500 cursor-pointer">
               <Link to="/register">Register now</Link>
             </span>
-          </p>
+            </p>
+            {/*FORGET PASSWORD LINK*/}
+            <p className="text-white mt-4">
+            Forgot your password? &nbsp;
+            <span className="text-blue-500 cursor-pointer">
+              <Link to="/forgetPassword">Reset Password</Link>
+            </span>
+            </p>
+
+          
         </div>
       </div>
     </div>

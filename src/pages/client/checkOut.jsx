@@ -18,32 +18,58 @@ export default function CheckOutPage() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  function placeOrder() {
+  async function placeOrder() {
+    // basic validation
+    if (!name?.trim() || !address?.trim() || !phoneNumber?.trim()) {
+      toast.error("Please fill name, address and contact before placing order.");
+      return;
+    }
+
+    if (!Array.isArray(cart) || cart.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
+    const labelTotal = cart.reduce(
+      (s, it) => s + (Number(it.lablePrice ?? it.price) || 0) * it.quantity,
+      0
+    );
+    const total = cart.reduce((s, it) => s + (Number(it.price) || 0) * it.quantity, 0);
+
     const orderData = {
-      name:name,
-      address: address,
-      phoneNumber: phoneNumber,
+      name,
+      address,
+      phoneNumber,
+      total,
+      labelTotal,
       billItems: cart.map((item) => ({
+        // send both keys to accommodate differing backend expectations
         productid: item.productid,
+        productId: item.productid,
         quantity: item.quantity,
+        price: Number(item.price) || 0,
       })),
     };
 
     const token = localStorage.getItem("token");
 
-    axios
-      .post(import.meta.env.VITE_BACKEND_URL + "/api/order", orderData, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        console.log("Order placed successfully:", response.data);
-        toast.success("Order placed successfully!");
-        navigate("/");
-      })
-      .catch((error) => {
-        console.error("Error placing order:", error);
-        toast.error("Failed to place order. Please try again.");
+    try {
+      console.log("Placing order, payload:", orderData);
+      const url = (import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5000").replace(/\/$/, "") + "/api/order";
+      const response = await axios.post(url, orderData, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
+
+      console.log("Order placed successfully:", response.data);
+      toast.success("Order placed successfully!");
+      localStorage.removeItem("cart");
+      setCart([]);
+      navigate("/");
+    } catch (error) {
+      console.error("Error placing order:", error);
+      const serverMessage = error?.response?.data?.message || error?.response?.data || error.message;
+      toast.error(`Failed to place order: ${serverMessage}`);
+    }
   }
 
   // ✅ Load cart once when page mounts
