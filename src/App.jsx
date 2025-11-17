@@ -10,6 +10,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import TestingResponse from "./pages/client/test.jsx";
 import Header from "./components/header.jsx";
 import ForgetPassword from "./pages/client/forgetPassword.jsx";
+import Footer from "./components/footer.jsx";
+import FooterCorner from "./components/footerCorner.jsx";
+
 
 
 
@@ -22,22 +25,27 @@ function AppContent() {
   const hideHeader = hideHeaderRoutes.includes(location.pathname);
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Toaster position="top-center" />
 
       {!hideHeader && <Header />}
 
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin/*" element={<AdminPage />} />
-  <Route path="/*" element={<HomePage />} />
-        <Route path="/testing" element={<Testing />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/checkOut" element={<CheckOutPage />} />
-        <Route path="/res" element={<TestingResponse />} />
-        <Route path="/forgetPassword" element={<ForgetPassword />} />
-      </Routes>
-    </>
+      <main className="flex-1">
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin/*" element={<AdminPage />} />
+          <Route path="/*" element={<HomePage />} />
+          <Route path="/testing" element={<Testing />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/checkOut" element={<CheckOutPage />} />
+          <Route path="/res" element={<TestingResponse />} />
+          <Route path="/forgetPassword" element={<ForgetPassword />} />
+        </Routes>
+      </main>
+      
+      <Footer />
+      <FooterCorner />
+    </div>
   );
 }
 
