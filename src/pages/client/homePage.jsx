@@ -4,6 +4,7 @@ import ProductPage from "./productsPage.jsx";
 import ProductOverView from "./productOverView.jsx";
 import CartPage from "./cart.jsx";
 import { toast } from "react-hot-toast";
+import ContactUs from "./contactUs.jsx";
 
 // --- 1. The Banner/Hero Section ---
 const HeroSection = () => (
@@ -164,6 +165,7 @@ export default function HomePage() {
       <Route path="products" element={<ProductPage />} />
       <Route path="overview/:productid" element={<ProductOverView />} />
       <Route path="cart" element={<CartPage />} />
+      <Route path="/contact" element={<ContactUs/>} />
       <Route path="*" element={<h1 className="p-8">404 Not Found</h1>} />
     </Routes>
   );

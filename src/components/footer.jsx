@@ -30,13 +30,13 @@ function Footer() {
           <h4 className="font-semibold">Quick Links</h4>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
-              <Link to="/about" className="text-gray-300 hover:text-white">About Us</Link>
+              <Link to="/" className="text-gray-300 hover:text-white">Home</Link>
             </li>
             <li>
-              <Link to="/sustainability" className="text-gray-300 hover:text-white">Our Commitment</Link>
+              <Link to="/products" className="text-gray-300 hover:text-white">Products</Link>
             </li>
             <li>
-              <Link to="/careers" className="text-gray-300 hover:text-white">Careers</Link>
+              <Link to="/reviews" className="text-gray-300 hover:text-white">Reviews</Link>
             </li>
             <li>
               <Link to="/blog" className="text-gray-300 hover:text-white">Blog / Tips</Link>
