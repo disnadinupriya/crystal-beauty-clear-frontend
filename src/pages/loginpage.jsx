@@ -26,7 +26,7 @@ export default function LoginPage() {
         try {
           localStorage.setItem("user", JSON.stringify(response.data.user));
         } catch (e) {
-          console.warn("Failed to cache user in localStorage:", e);
+          console.warn("Failed to cache user in localStorage:",  e);
         }
         // notify other parts of the app that auth changed
         window.dispatchEvent(new Event("authChanged"));
