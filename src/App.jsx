@@ -36,14 +36,15 @@ function AppContent() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin/*" element={<AdminPage />} />
-          <Route path="/*" element={<HomePage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/testing" element={<Testing />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/checkOut" element={<CheckOutPage />} />
           <Route path="/res" element={<TestingResponse />} />
           <Route path="/forgetPassword" element={<ForgetPassword />} />
-          <Route path="reviews" element={<ReviewsPage/>} />
+          <Route path="/reviews" element={<ReviewsPage/>} />
           <Route path="/profile" element={<ProfilePage/>} />
+          <Route path="*" element={<HomePage />} />
         </Routes>
       </main>
       

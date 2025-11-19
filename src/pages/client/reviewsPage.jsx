@@ -86,10 +86,124 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4">Reviews</h2>
-     
-      </div>
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-12 text-center">
+          <h1 className="text-4xl font-bold text-gray-900">Customer Reviews</h1>
+          <p className="mt-2 text-gray-600">Share your experience with our products</p>
+        </div>
 
+        <div className="mb-8">
+          <input
+            type="text"
+            placeholder="Filter by product name or ID..."
+            value={productFilter}
+            onChange={(e) => setProductFilter(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded shadow focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+        </div>
+
+        <div className="bg-white rounded shadow p-6 mb-8">
+          <h2 className="text-2xl font-semibold mb-6">Leave a Review</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Your Name</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Enter your name"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Product Name / ID</label>
+              <input
+                type="text"
+                value={formData.product}
+                onChange={(e) => setFormData({ ...formData, product: e.target.value })}
+                placeholder="Enter product name or ID"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Rating</label>
+              <div className="mt-2 flex gap-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, rating: i })}
+                    className={`w-10 h-10 rounded flex items-center justify-center transition ${
+                      formData.rating >= i ? "bg-yellow-400 text-white" : "bg-gray-200 text-gray-400"
+                    }`}
+                  >
+                    <FaStar />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Comment</label>
+              <textarea
+                value={formData.comment}
+                onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                placeholder="Share your experience..."
+                rows="5"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded disabled:opacity-50"
+            >
+              {submitting ? "Submitting..." : "Submit Review"}
+            </button>
+          </form>
+        </div>
+
+        <div className="bg-white rounded shadow p-6">
+          <h2 className="text-2xl font-semibold mb-6">All Reviews</h2>
+
+          {loading ? (
+            <div className="text-center text-gray-500">Loading reviews...</div>
+          ) : reviews.length === 0 ? (
+            <p className="text-center text-gray-500">No reviews yet. Be the first to review!</p>
+          ) : (
+            <div className="space-y-6">
+              {reviews.map((review, idx) => (
+                <div key={review._id || idx} className="border-b pb-6 last:border-b-0">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-lg">{review.name}</h3>
+                      <p className="text-sm text-gray-500">Product: <strong>{review.product}</strong></p>
+                    </div>
+                    <div className="text-right">{renderStars(review.rating)}</div>
+                  </div>
+                  <p className="mt-3 text-gray-700">{review.comment}</p>
+                  <div className="mt-2 flex justify-between items-center text-xs text-gray-400">
+                    <span>{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}</span>
+                    {review.status && (
+                      <span className={`px-2 py-1 rounded ${
+                        review.status === "approved"
+                          ? "bg-green-100 text-green-700"
+                          : review.status === "pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                      }`}>{review.status}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
