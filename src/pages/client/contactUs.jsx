@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa'; // Uncomment react-icons for visual appeal
 
 function ContactUs() {
@@ -24,7 +25,7 @@ function ContactUs() {
     e.preventDefault();
     console.log('Form Submitted:', formData);
     // 1. You would typically send this data to an API endpoint here.
-    alert('Thank you for reaching out! We will be in touch soon.');
+   toast.success('Your message has been sent successfully!');
     setFormData({ name: '', email: '', subject: '', message: '' });
   };
 

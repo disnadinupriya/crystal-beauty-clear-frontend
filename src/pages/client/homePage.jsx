@@ -129,15 +129,15 @@ function NewsletterCTA() {
 
     try {
       const key = "subscribers";
-      const existing = JSON.parse(localStorage.getItem(key) || "[]");
-      if (!Array.isArray(existing)) existing = [];
+      const raw = JSON.parse(localStorage.getItem(key) || "[]");
+      const existing = Array.isArray(raw) ? raw : [];
       if (existing.includes(trimmed)) {
         toast("You're already subscribed");
         setEmail("");
         return;
       }
-      existing.push(trimmed);
-      localStorage.setItem(key, JSON.stringify(existing));
+      const updated = [...existing, trimmed];
+      localStorage.setItem(key, JSON.stringify(updated));
       toast.success("Subscribed — thank you!");
       setEmail("");
     } catch (err) {
