@@ -12,8 +12,8 @@ import Header from "./components/header.jsx";
 import ForgetPassword from "./pages/client/forgetPassword.jsx";
 import Footer from "./components/footer.jsx";
 import FooterCorner from "./components/footerCorner.jsx";
-import ReviewsPage from "./pages/client/reviewspage.jsx";
 import ProfilePage from "./pages/client/profilePage.jsx";
+import ReviewsPage from "./pages/client/reviewsPage.jsx";
 
 
 
@@ -42,7 +42,7 @@ function AppContent() {
           <Route path="/checkOut" element={<CheckOutPage />} />
           <Route path="/res" element={<TestingResponse />} />
           <Route path="/forgetPassword" element={<ForgetPassword />} />
-          <Route path="/reviews" element={<ReviewsPage/>} />
+          <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/profile" element={<ProfilePage/>} />
           <Route path="*" element={<HomePage />} />
         </Routes>
