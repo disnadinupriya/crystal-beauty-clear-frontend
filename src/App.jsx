@@ -21,7 +21,7 @@ import ReviewsPage from "./pages/client/reviewsPage.jsx";
 function AppContent() {
   const location = useLocation();
 
-  // Routes where header should be hidden
+  // Routes where header should be hidde n
   const hideHeaderRoutes = ["/login", "/register","/forgetPassword"];
 
   const hideHeader = hideHeaderRoutes.includes(location.pathname);
