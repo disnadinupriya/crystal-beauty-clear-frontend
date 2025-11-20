@@ -7,6 +7,7 @@ import { CgProfile } from "react-icons/cg";
 import UserState from "./userData.jsx";
 
 
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -31,6 +32,9 @@ export default function Header() {
             </Link>
             <Link to="/products" className="hover:text-gray-200 transition">
               Products
+            </Link>
+            <Link to="/myOders" className="hover:text-gray-200 transition">
+              My Orders
             </Link>
             <Link to="/contact" className="hover:text-gray-200 transition">
               Contact Us
@@ -79,6 +83,9 @@ export default function Header() {
             </Link>
             <Link to="/products" className="block py-3 px-4 hover:bg-blue-800">
               Products
+            </Link>
+            <Link to="/myOders" className="block py-3 px-4 hover:bg-blue-800">
+              My Orders
             </Link>
             <Link to="/contact" className="block py-3 px-4 hover:bg-blue-800">
               Contact Us

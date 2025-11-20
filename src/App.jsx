@@ -14,6 +14,7 @@ import Footer from "./components/footer.jsx";
 import FooterCorner from "./components/footerCorner.jsx";
 import ProfilePage from "./pages/client/profilePage.jsx";
 import ReviewsPage from "./pages/client/reviewsPage.jsx";
+import MyOrder from "./pages/client/myOrder.jsx";
 
 
 
@@ -45,6 +46,9 @@ function AppContent() {
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/profile" element={<ProfilePage/>} />
           <Route path="*" element={<HomePage />} />
+          <Route path="/myOders" element={<MyOrder/>} />
+          
+          
         </Routes>
       </main>
       

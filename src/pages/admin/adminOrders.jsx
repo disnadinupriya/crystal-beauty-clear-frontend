@@ -4,13 +4,17 @@ import Loader from "../../components/loader";
 import { IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-
+// 1. Import Search Icon
+import { FaSearch } from "react-icons/fa"; 
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [modelIsDisplaing, setModelIsDisplaing] = useState(false);
   const [displaingOrder, setDisplaingOrder] = useState(null);
+  
+  // 2. Add State for Search Query
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!loaded) {
@@ -29,47 +33,35 @@ export default function AdminOrdersPage() {
         });
     }
   }, [loaded]);
-  /*{
-    "_id": "6905d599b21a55836a3b3c13",
-    "orderId": "ORD0022",
-    "email": "gayan1@gmail.com",
-    "name": "disna",
-    "address": "maho",
-    "status": "Pending",
-    "phoneNumber": "0784773387",
-    "billItems": [
-        {
-            "productid": "1122121121211212",
-            "ProductName": "5",
-            "Image": "https://guaxykwlwvybejqayzfg.supabase.co/storage/v1/object/public/images/1754824223159cosmatic%20(3).jpeg",
-            "quantity": 1,
-            "price": 5,
-            "_id": "6905d599b21a55836a3b3c14"
-        }
-    ],
-    "total": 5,
-    "date": "2025-11-01T09:40:41.227Z",
-    "__v": 0
-}*/
 
-function changeOrderStatus(orderId,status){
-  const token = localStorage.getItem("token");
-  axios
-  .put(import.meta.env.VITE_BACKEND_URL + "/api/order/" + orderId, {
-    status: status,
-  }, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  .then((response) => {
-    console.log("Order status updated successfully:", response.data);
-    toast.success("Order status updated successfully");
-    
-    setLoaded(false);
-  })
-  .catch((error) => {
-    console.error("Error updating order status:", error);
+  function changeOrderStatus(orderId, status) {
+    const token = localStorage.getItem("token");
+    axios
+      .put(import.meta.env.VITE_BACKEND_URL + "/api/order/" + orderId, {
+        status: status,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        console.log("Order status updated successfully:", response.data);
+        toast.success("Order status updated successfully");
+        setLoaded(false);
+      })
+      .catch((error) => {
+        console.error("Error updating order status:", error);
+      });
+  }
+
+  // 3. Filter Logic (Search by ID, Email, or Name)
+  const filteredOrders = orders.filter((order) => {
+    const query = searchQuery.toLowerCase().trim();
+    const id = (order.orderId || "").toLowerCase();
+    const email = (order.email || "").toLowerCase();
+    const name = (order.name || "").toLowerCase();
+
+    return id.includes(query) || email.includes(query) || name.includes(query);
   });
-}
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-blue-50 to-white py-10 px-6">
       {loaded ? (
@@ -78,23 +70,29 @@ function changeOrderStatus(orderId,status){
             📦 All Orders
           </h1>
 
+          {/* 4. Search Bar UI */}
+          <div className="mb-6 relative max-w-md">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaSearch className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search by Order ID, Email, or Name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-gray-700 border border-gray-200 rounded-xl">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold">
-                    Order ID
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold">
-                    Customer Email
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold">
-                    Customer Name
-                  </th>
+                  <th className="px-4 py-3 text-left font-semibold">Order ID</th>
+                  <th className="px-4 py-3 text-left font-semibold">Customer Email</th>
+                  <th className="px-4 py-3 text-left font-semibold">Customer Name</th>
                   <th className="px-4 py-3 text-left font-semibold">Address</th>
-                  <th className="px-4 py-3 text-left font-semibold">
-                    Phone Number
-                  </th>
+                  <th className="px-4 py-3 text-left font-semibold">Phone Number</th>
                   <th className="px-4 py-3 text-left font-semibold">Status</th>
                   <th className="px-4 py-3 text-left font-semibold">Date</th>
                   <th className="px-4 py-3 text-left font-semibold">Total</th>
@@ -102,57 +100,69 @@ function changeOrderStatus(orderId,status){
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
-                  <tr
-                    key={order.orderId}
-                    className="border-b hover:bg-blue-50 transition duration-200 text-center cursor-pointer"
-                    
-                  >
-                    <td className="px-4 py-3 font-semibold text-gray-800">
-                      {order.orderId}
-                    </td>
-                    <td className="px-4 py-3">{order.email}</td>
-                    <td className="px-4 py-3">{order.name}</td>
-                    <td className="px-4 py-3">{order.address}</td>
-                    <td className="px-4 py-3">{order.phoneNumber}</td>
-                    <td className="px-4 py-3">
-                      <select value={order.status} onChange={
-                        (e)=>{
-                          console.log(e.target.value)
-                          changeOrderStatus(order.orderId,e.target.value)
-                        }
-                      }>
-                        <option value={"Pending"}>Pending</option>
-                        <option value={"Delivered"}>Delivered</option>
-                        <option value={"Cancelled"}>Cancelled</option>
-                        <option value={"Processing"}>Processing</option>
-                      </select>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {new Date(order.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-blue-700">
-                      LKR {order.total}.00
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => {
-                          setModelIsDisplaing(true);
-                          setDisplaingOrder(order);
-                        }}
-                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-                      >
-                        View
-                      </button>
+                {/* 5. Map through filteredOrders instead of orders */}
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
+                    <tr
+                      key={order.orderId}
+                      className="border-b hover:bg-blue-50 transition duration-200 text-center cursor-pointer"
+                    >
+                      <td className="px-4 py-3 font-semibold text-gray-800">
+                        {order.orderId}
+                      </td>
+                      <td className="px-4 py-3">{order.email}</td>
+                      <td className="px-4 py-3">{order.name}</td>
+                      <td className="px-4 py-3">{order.address}</td>
+                      <td className="px-4 py-3">{order.phoneNumber}</td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={order.status}
+                          onChange={(e) => {
+                            console.log(e.target.value);
+                            changeOrderStatus(order.orderId, e.target.value);
+                          }}
+                          className="p-1 border rounded bg-white"
+                        >
+                          <option value={"Pending"}>Pending</option>
+                          <option value={"Delivered"}>Delivered</option>
+                          <option value={"Cancelled"}>Cancelled</option>
+                          <option value={"Processing"}>Processing</option>
+                        </select>
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {new Date(order.date).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-blue-700">
+                        LKR {order.total}.00
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => {
+                            setModelIsDisplaing(true);
+                            setDisplaingOrder(order);
+                          }}
+                          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
+                      No orders found matching "{searchQuery}"
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
+            
+            {/* Modal Logic Remains Same */}
             {modelIsDisplaing && (
-              <div className="fixed bg-[#00000090] w-full h-full top-0 left-0 flex justify-center items-center">
-                <div className="bg-white rounded-lg w-[600px] h-[600px] relative max-w-[600px] max-h-[600px] overflow-hidden">
-                  <div className="w-full bg-red-400 p-6">
+              <div className="fixed bg-[#00000090] w-full h-full top-0 left-0 flex justify-center items-center z-50">
+                <div className="bg-white rounded-lg w-[600px] h-[600px] relative max-w-[600px] max-h-[600px] overflow-hidden shadow-2xl">
+                  <div className="w-full bg-blue-600 p-6">
                     <div className="mb-4">
                       <h2 className="text-2xl font-bold text-white">
                         Order ID: {displaingOrder?.orderId || "-"}
@@ -226,8 +236,3 @@ function changeOrderStatus(orderId,status){
     </div>
   );
 }
-
-
-//clint id=427147346815-85snsi8rq5kpt5ovqqrc2atbruib1jhr.apps.googleusercontent.com
-//https://console.cloud.google.com/
-//npm install @react-oauth/google@latest
