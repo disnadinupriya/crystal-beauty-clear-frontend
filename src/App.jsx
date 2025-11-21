@@ -15,6 +15,10 @@ import FooterCorner from "./components/footerCorner.jsx";
 import ProfilePage from "./pages/client/profilePage.jsx";
 import ReviewsPage from "./pages/client/reviewsPage.jsx";
 import MyOrder from "./pages/client/myOrder.jsx";
+import ProductPage from "./pages/client/productsPage.jsx";
+import ContactUs from "./pages/client/contactUs.jsx";
+import ProductOverView from "./pages/client/productOverView.jsx";
+
 
 
 
@@ -47,6 +51,10 @@ function AppContent() {
           <Route path="/profile" element={<ProfilePage/>} />
           <Route path="*" element={<HomePage />} />
           <Route path="/myOders" element={<MyOrder/>} />
+          <Route path="/products" element={<ProductPage/>} />
+          <Route path="/contact" element={ <ContactUs />} />
+          <Route path="/overview/:productid" element={<ProductOverView />} />
+          <Route path="/cart" element={<CheckOutPage />} />
           
           
         </Routes>

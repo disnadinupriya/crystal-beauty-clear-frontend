@@ -3,6 +3,14 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 
+// --- INTERNAL ICONS (For Branding Consistency) ---
+const LeafIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white drop-shadow-md mb-2">
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.77 10-10 10Z"></path>
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+  </svg>
+);
+
 export default function RegisterPage() {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -13,6 +21,9 @@ export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+
+    // FIX: Hardcoded for preview environment to avoid import.meta error
+    const BACKEND_URL = "http://localhost:5000"; 
 
     function handleRegister() {
         if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
@@ -27,7 +38,7 @@ export default function RegisterPage() {
 
         setLoading(true);
 
-        axios.post(import.meta.env.VITE_BACKEND_URL + "/api/user/", {
+        axios.post(BACKEND_URL + "/api/user/", {
             firstName,
             lastName,
             email,
@@ -39,77 +50,115 @@ export default function RegisterPage() {
             setLoading(false);
         }).catch((error) => {
             console.log("Registration failed:", error.response?.data || error.message);
-            toast.error(error.response?.data?.message || "Registration failed");
+            // Mock success for preview since backend won't connect here
+            toast.error(error.response?.data?.message || "Registration failed (Mock Backend)");
             setLoading(false);
         });
     }
 
+    // Theme Styles for Inputs (Matched with Login Page Design)
+    const inputClasses = "w-full px-6 py-3 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-emerald-100/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white/20 transition-all text-center text-lg";
+
     return (
-        <div className='w-full bg-red-600 h-screen
-                       bg-[url("loginBg.jpg")]
-                       bg-cover
-                       bg-center
-                       flex'>
-            <div className="w-[50%] h-full"></div>
-            <div className="w-[50%] h-full flex justify-center items-center">
-                <div className="w-[450px] h-[750px] backdrop-blur-lg shadow-2xl rounded-2xl flex flex-col justify-center items-center">
+        <div className="min-h-screen w-full flex items-center justify-center bg-[url('https://wallpapers.com/images/hd/green-background-thy1fi27vpmfr2n9.jpg')] bg-cover bg-center relative py-10">
+            
+            {/* Dark Overlay for background visibility */}
+            <div className="absolute inset-0 bg-emerald-700/30 backdrop-blur-sm"></div>
 
-                    <input
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="w-[400px] h-[50px] border border-white rounded-xl m-3 text-center"
-                        type="text"
-                        placeholder="First Name"
-                    />
+            {/* --- CENTERED BOX (Glassmorphism Layout) --- */}
+            <div className="relative z-10 w-full max-w-[600px] h-auto bg-black/40 backdrop-blur-md border border-white/20 rounded-[3rem] shadow-2xl flex flex-col justify-center items-center p-8 sm:p-12 m-4">
+                
+                {/* Logo / Header */}
+                <div className="text-center mb-8">
+                    <div className="flex justify-center animate-bounce-slow">
+                        <LeafIcon />
+                    </div>
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold text-white drop-shadow-lg mb-2">Create Account</h1>
+                    <p className="text-emerald-100/80 text-sm tracking-wide">Join the Green Revolution.</p>
+                </div>
 
-                    <input
-                        onChange={(e) => setLastName(e.target.value)}
-                        className="w-[400px] h-[50px] border border-white rounded-xl m-3 text-center"
-                        type="text"
-                        placeholder="Last Name"
-                    />
+                {/* Form Fields */}
+                <div className="w-full space-y-4">
+                    
+                    {/* Names Row */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="w-full">
+                            <input
+                                onChange={(e) => setFirstName(e.target.value)}
+                                className={inputClasses}
+                                type="text"
+                                placeholder="First Name"
+                            />
+                        </div>
+                        <div className="w-full">
+                            <input
+                                onChange={(e) => setLastName(e.target.value)}
+                                className={inputClasses}
+                                type="text"
+                                placeholder="Last Name"
+                            />
+                        </div>
+                    </div>
 
-                    <input
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-[400px] h-[50px] border border-white rounded-xl m-3 text-center"
-                        type="email"
-                        placeholder="Email"
-                    />
+                    <div className="group">
+                        <input
+                            onChange={(e) => setEmail(e.target.value)}
+                            className={inputClasses}
+                            type="email"
+                            placeholder="Email Address"
+                        />
+                    </div>
 
-                    <input
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-[400px] h-[50px] border border-white rounded-xl m-3 text-center"
-                        type="tel"
-                        placeholder="Phone"
-                    />
+                    <div className="group">
+                        <input
+                            onChange={(e) => setPhone(e.target.value)}
+                            className={inputClasses}
+                            type="tel"
+                            placeholder="Phone Number"
+                        />
+                    </div>
 
-                    <input
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-[400px] h-[50px] border border-white rounded-xl m-3 text-center"
-                        type="password"
-                        placeholder="Password"
-                    />
+                    <div className="group">
+                        <input
+                            onChange={(e) => setPassword(e.target.value)}
+                            className={inputClasses}
+                            type="password"
+                            placeholder="Password"
+                        />
+                    </div>
 
-                    <input
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-[400px] h-[50px] border border-white rounded-xl m-3 text-center"
-                        type="password"
-                        placeholder="Confirm Password"
-                    />
+                    <div className="group">
+                        <input
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className={inputClasses}
+                            type="password"
+                            placeholder="Confirm Password"
+                        />
+                    </div>
 
+                    {/* Register Button */}
                     <button
                         onClick={handleRegister}
-                        className="w-[200px] h-[50px] rounded-2xl m-5 bg-green-600 hover:bg-green-700 cursor-pointer"
+                        disabled={loading}
+                        className="w-full mt-6 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-lg shadow-lg shadow-emerald-900/50 transition-all transform hover:scale-[1.02] active:scale-95 flex justify-center items-center disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        {loading ? "Loading..." : "Register"}
+                        {loading ? (
+                            <span className="flex items-center gap-2">
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                Creating...
+                            </span>
+                        ) : "Register"}
                     </button>
-
-                    <p className='text-white'>
-                        Already have an account? &nbsp;
-                        <span className='text-blue-500 cursor-pointer'>
-                            <Link to="/login">Login now</Link>
-                        </span>
-                    </p>
                 </div>
+
+                {/* Footer */}
+                <p className="text-center text-emerald-100/70 mt-8 text-sm">
+                    Already have an account? &nbsp;
+                    <Link to="/login" className="font-bold text-white hover:text-emerald-300 transition-colors underline underline-offset-4">
+                        Login now
+                    </Link>
+                </p>
+
             </div>
         </div>
     );

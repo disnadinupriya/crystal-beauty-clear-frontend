@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-// 1. Import FaEye and FaTimes (Close icon)
 import { FaPlus, FaSearch, FaTrash, FaEdit, FaBoxOpen, FaEye, FaTimes } from "react-icons/fa";
 import toast from "react-hot-toast";
 import Loader from "../../components/loader";
@@ -11,7 +10,6 @@ export default function AdminProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // 2. Popup එක සඳහා State එකක් (Selected Product)
   const [selectedProduct, setSelectedProduct] = useState(null);
   
   const navigate = useNavigate();
@@ -33,7 +31,8 @@ export default function AdminProductsPage() {
   }, []);
 
   // 2. Delete Product
-  const handleDelete = async (product) => {
+  const handleDelete = async (e, product) => {
+    e.stopPropagation(); // Prevent row click (Popup won't open)
     const idToSend = product.productid || product._id;
     if (!window.confirm(`Are you sure you want to delete "${product.name}"?`)) return;
     
@@ -59,15 +58,28 @@ export default function AdminProductsPage() {
     }
   };
 
-  // 3. Search Filter
-  const q = (searchQuery || "").toString().toLowerCase().trim();
-  const filteredProducts = products.filter((product) => {
-    const name = (product?.name || "").toString().toLowerCase();
-    const idStr = (product?.productid ?? product?._id ?? "").toString().toLowerCase();
-    return name.includes(q) || idStr.includes(q);
-  });
+  // Navigation handler for Edit to stop bubbling
+  const handleEdit = (e, product) => {
+    e.stopPropagation(); // Prevent row click
+    navigate("/admin/editProduct", { state: product });
+  };
 
-  // 4. Helper Function to get Image (Popup එක ඇතුලෙත් පාවිච්චි කරන්න පුළුවන් විදියට)
+  // 3. Search Filter & Sort Logic
+  const q = (searchQuery || "").toString().toLowerCase().trim();
+  
+  const filteredProducts = products
+    .filter((product) => {
+      const name = (product?.name || "").toString().toLowerCase();
+      const idStr = (product?.productid ?? product?._id ?? "").toString().toLowerCase();
+      return name.includes(q) || idStr.includes(q);
+    })
+    .sort((a, b) => {
+        const idA = (a.productid || "").toString();
+        const idB = (b.productid || "").toString();
+        return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+  // 4. Helper Function to get Image
   const getProductImage = (product) => {
     return Array.isArray(product?.Image) && product.Image.length > 0
       ? product.Image[0]
@@ -136,7 +148,12 @@ export default function AdminProductsPage() {
                     : 0;
 
                   return (
-                    <tr key={uniqueKey} className="border-b border-gray-200 hover:bg-gray-50">
+                    <tr 
+                        key={uniqueKey} 
+                        // ADDED: onClick to open popup & cursor-pointer
+                        onClick={() => setSelectedProduct(product)}
+                        className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
                       <td className="px-5 py-4">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
@@ -172,29 +189,34 @@ export default function AdminProductsPage() {
                       <td className="px-5 py-4 text-center">
                         <div className="flex justify-center gap-3">
                           
-                          {/* --- 5. New View Button (Eye Icon) --- */}
+                          {/* View Button - Optional now since row clicks work, but kept for clarity */}
                           <button
-                            onClick={() => setSelectedProduct(product)}
+                            onClick={(e) => {
+                                e.stopPropagation(); // Prevent double trigger
+                                setSelectedProduct(product);
+                            }}
                             className="text-green-500 hover:text-green-700 bg-green-50 p-2 rounded-full hover:bg-green-100 transition shadow-sm"
                             title="View Product"
                           >
                             <FaEye />
                           </button>
 
+                          {/* Edit Button - Increased Size */}
                           <button
-                            onClick={() => navigate("/admin/editProduct", { state: product })}
+                            onClick={(e) => handleEdit(e, product)}
                             className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-full hover:bg-blue-100 transition shadow-sm"
                             title="Edit Product"
                           >
-                            <FaEdit />
+                            <FaEdit size={20} /> {/* Size increased */}
                           </button>
                           
+                          {/* Delete Button - Increased Size */}
                           <button
-                            onClick={() => handleDelete(product)}
+                            onClick={(e) => handleDelete(e, product)}
                             className="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-full hover:bg-red-100 transition shadow-sm"
                             title="Delete Product"
                           >
-                            <FaTrash />
+                            <FaTrash size={20} /> {/* Size increased */}
                           </button>
                         </div>
                       </td>
@@ -216,7 +238,7 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* --- 6. Product Detail Popup (Modal) --- */}
+      {/* --- Product Detail Popup (Modal) --- */}
       {selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden transform transition-all scale-100">
@@ -247,13 +269,13 @@ export default function AdminProductsPage() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  {/* If multiple images exist, show small thumbnails below (optional) */}
+                  {/* If multiple images exist, show small thumbnails below */}
                   {(selectedProduct.image || selectedProduct.Image)?.length > 1 && (
-                     <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
-                        {(selectedProduct.image || selectedProduct.Image).map((img, i) => (
-                           <img key={i} src={img} alt="thumb" className="w-16 h-16 object-cover rounded-md border border-gray-200" />
-                        ))}
-                     </div>
+                      <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
+                         {(selectedProduct.image || selectedProduct.Image).map((img, i) => (
+                            <img key={i} src={img} alt="thumb" className="w-16 h-16 object-cover rounded-md border border-gray-200" />
+                         ))}
+                      </div>
                   )}
                 </div>
 
@@ -294,12 +316,12 @@ export default function AdminProductsPage() {
 
                   {selectedProduct.altName && selectedProduct.altName.length > 0 && (
                     <div>
-                       <h4 className="font-semibold text-gray-700 text-sm mb-1">Tags / Alt Names:</h4>
-                       <div className="flex flex-wrap gap-2">
+                        <h4 className="font-semibold text-gray-700 text-sm mb-1">Tags / Alt Names:</h4>
+                        <div className="flex flex-wrap gap-2">
                           {(Array.isArray(selectedProduct.altName) ? selectedProduct.altName : selectedProduct.altName.split(',')).map((tag, i) => (
                              <span key={i} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200">{tag}</span>
                           ))}
-                       </div>
+                        </div>
                     </div>
                   )}
                 </div>
