@@ -3,7 +3,7 @@ import {
   getTotal,
   getTotalForLablePrice,
 } from "../../../utils/cart.js";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt, FaLock, FaMapMarkerAlt, FaPhoneAlt, FaUser, FaCheckCircle, FaArrowRight } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../../components/header.jsx";
@@ -18,6 +18,7 @@ export default function CheckOutPage() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+
   async function placeOrder() {
     // basic validation
     if (!name?.trim() || !address?.trim() || !phoneNumber?.trim()) {
@@ -43,7 +44,6 @@ export default function CheckOutPage() {
       total,
       labelTotal,
       billItems: cart.map((item) => ({
-        // send both keys to accommodate differing backend expectations
         productid: item.productid,
         productId: item.productid,
         quantity: item.quantity,
@@ -86,13 +86,13 @@ export default function CheckOutPage() {
       }
     }
 
-    // ✅ Show loading only once (not every cart update)
+    // ✅ Show loading only once
     if (!cartLoaded) {
       setTimeout(() => setCartLoaded(true), 600);
     }
   }, [location.state]);
 
-  // Save cart changes to localStorage (no loading reset)
+  // Save cart changes to localStorage
   useEffect(() => {
     if (cartLoaded) {
       localStorage.setItem("cart", JSON.stringify(cart));
@@ -100,197 +100,212 @@ export default function CheckOutPage() {
   }, [cart, cartLoaded]);
 
   return (
-    <div>
+    <div className="bg-stone-50 min-h-screen font-sans text-stone-800 pb-20">
       <Header />
 
-      <div className="min-h-screen w-full flex justify-center items-start bg-gradient-to-b from-pink-50 to-white py-16 px-6">
-        <div className="w-full max-w-[750px]">
-          {/* 🛍️ Title */}
-          <h1 className="text-3xl font-bold mb-8 text-gray-800 flex items-center">
-            💳 Checkout
-            {!cartLoaded && (
-              <span className="ml-3 inline-block w-5 h-5 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></span>
-            )}
-          </h1>
+      {/* Decorative Top Background */}
+      <div className="fixed top-0 left-0 w-full h-96 bg-gradient-to-b from-emerald-100/50 to-transparent -z-10" />
 
-          {/* 🕒 Loading skeleton */}
-          {!cartLoaded ? (
-            <div className="space-y-4 animate-pulse">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between border border-gray-100"
-                >
-                  <div className="w-[95px] h-[95px] bg-gray-200 rounded-xl"></div>
-                  <div className="flex-1 ml-5 space-y-3">
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                    <div className="h-4 bg-gray-100 rounded w-1/3"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                  </div>
-                  <div className="w-[80px] h-[20px] bg-gray-200 rounded"></div>
-                </div>
-              ))}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        
+        {/* 🛍️ Page Title */}
+        <div className="flex flex-col items-center mb-12">
+            <div className="w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center mb-4 text-emerald-600 text-2xl border border-emerald-100">
+                <FaLock />
             </div>
-          ) : cart.length === 0 ? (
-            <p className="text-center text-gray-500 mt-20 text-lg">
-              Your cart is empty.
-            </p>
-          ) : (
-            cart.map((item, index) => (
-              <div
-                key={index}
-                className="relative w-full bg-white/90 backdrop-blur-sm border border-gray-100 shadow-md hover:shadow-lg rounded-2xl flex justify-between items-center p-5 mb-5 transition-all duration-300"
-              >
-                {/* 🗑️ Remove Button */}
-                <button
-                  className="absolute right-5 top-1/2 -translate-y-1/2 bg-red-500 hover:bg-red-600 text-white rounded-full w-9 h-9 flex justify-center items-center shadow-sm hover:scale-110 transition-transform"
-                  onClick={() => {
-                    setCart((prev) =>
-                      prev.filter(
-                        (cartItem) => cartItem.productid !== item.productid
-                      )
-                    );
-                  }}
-                >
-                  <FaTrashAlt className="text-sm" />
-                </button>
+            <h1 className="text-3xl font-serif text-stone-900">Secure Checkout</h1>
+            <p className="text-stone-500 text-sm mt-1">Final step to your beauty journey</p>
+        </div>
 
-                {/* 🖼️ Product Image */}
-                <img
-                  src={item.Image}
-                  alt={item.name}
-                  className="w-[95px] h-[95px] object-cover rounded-xl shadow-sm ring-1 ring-gray-200"
-                />
+        {/* MAIN GRID LAYOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          
+          {/* 🧾 RIGHT COLUMN: Order Summary (Displayed first on mobile for context, but visually kept right on desktop) */}
+          {/* We use 'order-1' to show it first on mobile, 'lg:order-2' to show it right on desktop */}
+          <div className="lg:col-span-5 order-1 lg:order-2">
+            <div className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 border border-stone-100 p-6 sm:p-8 sticky top-8">
+              <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-medium text-stone-900">Your Bag</h2>
+                  <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded-full">{cart.length} Items</span>
+              </div>
 
-                {/* 🧾 Product Details */}
-                <div className="flex-1 ml-5 overflow-hidden">
-                  <p className="font-semibold text-gray-900 text-[17px] truncate">
-                    {item.name}
-                  </p>
-                  {item.altName && (
-                    <p className="text-sm text-gray-500 truncate">
-                      {Array.isArray(item.altName)
-                        ? item.altName.join(" | ")
-                        : item.altName}
+              {/* 🕒 Loading Skeleton */}
+              {!cartLoaded ? (
+                <div className="space-y-4 animate-pulse">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-stone-100 rounded-lg"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 bg-stone-100 rounded w-3/4"></div>
+                        <div className="h-3 bg-stone-100 rounded w-1/2"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : cart.length === 0 ? (
+                <p className="text-center text-stone-500 py-8 italic">Your cart is empty.</p>
+              ) : (
+                <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                  {cart.map((item, index) => (
+                    <div key={index} className="flex items-center gap-4 py-3 border-b border-stone-50 last:border-0 group">
+                      <div className="relative">
+                        <img
+                            src={item.Image}
+                            alt={item.name}
+                            className="w-16 h-16 object-cover rounded-xl border border-stone-100 shadow-sm"
+                        />
+                        <span className="absolute -top-2 -right-2 bg-stone-800 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
+                            {item.quantity}
+                        </span>
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-stone-900 truncate">{item.name}</p>
+                        <p className="text-xs text-stone-500 truncate">{Array.isArray(item.altName) ? item.altName.join(" | ") : item.altName}</p>
+                        <div className="flex justify-between items-center mt-1">
+                             <p className="text-emerald-600 font-medium text-sm">LKR {item.price.toFixed(2)}</p>
+                             {/* Mini Trash Icon */}
+                             <button
+                                onClick={() => setCart((prev) => prev.filter((c) => c.productid !== item.productid))}
+                                className="text-stone-300 hover:text-red-500 transition-colors p-1"
+                            >
+                                <FaTrashAlt size={12} />
+                            </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* 💰 Totals Section */}
+              {cartLoaded && cart.length > 0 && (
+                <div className="mt-6 pt-6 border-t-2 border-dashed border-stone-100 space-y-3">
+                  <div className="flex justify-between text-sm text-stone-600">
+                    <span>Subtotal</span>
+                    <span>LKR {getTotalForLablePrice().toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-emerald-600 font-medium">
+                    <span>Discount Savings</span>
+                    <span>- LKR {(getTotalForLablePrice() - getTotal()).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-end pt-3 border-t border-stone-100 mt-2">
+                    <div>
+                        <span className="text-sm text-stone-500 block">Total Amount</span>
+                        <span className="text-2xl font-bold text-stone-900">LKR {getTotal().toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 📝 LEFT COLUMN: Shipping Form + BUTTON IS HERE */}
+          <div className="lg:col-span-7 order-2 lg:order-1">
+            <div className="bg-white rounded-3xl shadow-sm border border-stone-100 overflow-hidden">
+              
+              {/* Form Header */}
+              <div className="bg-stone-900 px-8 py-5 flex items-center justify-between">
+                <h2 className="text-lg font-medium text-white flex items-center gap-2">
+                    <FaMapMarkerAlt className="text-emerald-400" /> Shipping Details
+                </h2>
+                <div className="flex gap-1">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-stone-600"></div>
+                    <div className="w-2 h-2 rounded-full bg-stone-600"></div>
+                </div>
+              </div>
+
+              <div className="p-6 sm:p-8 space-y-8">
+                {/* Name Input */}
+                <div className="group">
+                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-emerald-600 transition-colors">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <FaUser className="text-stone-300 group-focus-within:text-emerald-500 transition-colors" />
+                    </div>
+                    <input
+                      className="w-full pl-11 pr-4 py-4 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-stone-800 placeholder-stone-400"
+                      type="text"
+                      placeholder="e.g. Kasun Perera"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Address Input */}
+                <div className="group">
+                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-emerald-600 transition-colors">
+                    Delivery Address
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <FaMapMarkerAlt className="text-stone-300 group-focus-within:text-emerald-500 transition-colors" />
+                    </div>
+                    <input
+                      className="w-full pl-11 pr-4 py-4 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-stone-800 placeholder-stone-400"
+                      type="text"
+                      placeholder="House No, Street, City"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Contact Input */}
+                <div className="group">
+                  <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-emerald-600 transition-colors">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <FaPhoneAlt className="text-stone-300 group-focus-within:text-emerald-500 transition-colors" />
+                    </div>
+                    <input
+                      className="w-full pl-11 pr-4 py-4 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-stone-800 placeholder-stone-400"
+                      type="text"
+                      placeholder="07X XXXXXXX"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Privacy Note */}
+                <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4 flex gap-3 items-start">
+                    <FaCheckCircle className="text-emerald-500 mt-1 shrink-0" />
+                    <p className="text-xs text-stone-600 leading-relaxed">
+                        We will use this information to deliver your order. Your details are securely stored and never shared.
                     </p>
-                  )}
-                  <p className="text-sm text-pink-600 font-medium mt-1">
-                    LKR {item.price.toFixed(2)}
-                  </p>
                 </div>
 
-                {/* 🔢 Quantity Controls */}
-                <div className="flex flex-col items-center justify-center mr-14">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <button
-                      className="bg-gray-800 text-white text-[20px] rounded-full w-[34px] h-[34px] flex justify-center items-center hover:bg-gray-900 hover:scale-110 transition"
-                      onClick={() =>
-                        setCart((prev) => {
-                          const updated = [...prev];
-                          updated[index] = {
-                            ...updated[index],
-                            quantity: Math.max(1, updated[index].quantity - 1),
-                          };
-                          return updated;
-                        })
-                      }
-                    >
-                      −
-                    </button>
-                    <span className="font-semibold text-gray-800 text-[16px]">
-                      {item.quantity}
-                    </span>
-                    <button
-                      className="bg-gray-800 text-white text-[20px] rounded-full w-[34px] h-[34px] flex justify-center items-center hover:bg-gray-900 hover:scale-110 transition"
-                      onClick={() =>
-                        setCart((prev) => {
-                          const updated = [...prev];
-                          updated[index] = {
-                            ...updated[index],
-                            quantity: updated[index].quantity + 1,
-                          };
-                          return updated;
-                        })
-                      }
-                    >
-                      +
-                    </button>
-                  </div>
-                  <p className="text-gray-800 font-semibold text-sm">
-                    LKR {(item.price * item.quantity).toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            ))
-          )}
+                {/* 🔴 BUTTON PLACED HERE (Under Shipping Info) */}
+                {cartLoaded && cart.length > 0 && (
+                    <div className="pt-4">
+                        <button
+                            className="w-full group relative bg-stone-900 hover:bg-emerald-600 text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-stone-300 hover:shadow-emerald-200 transition-all duration-300 overflow-hidden"
+                            onClick={placeOrder}
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-3">
+                                Confirm Order <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                            </span>
+                            {/* Hover effect background */}
+                            <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                        </button>
+                        
+                        <p className="text-center text-[11px] text-stone-400 mt-4 uppercase tracking-wider">
+                            Cash on Delivery Available
+                        </p>
+                    </div>
+                )}
 
-          {/* 💰 Totals */}
-          {cartLoaded && cart.length > 0 && (
-            <div className="w-full mt-8 space-y-3">
-              <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                <h1 className="text-lg font-medium text-gray-700">Total</h1>
-                <h1 className="text-lg font-semibold text-gray-900">
-                  LKR {getTotalForLablePrice().toFixed(2)}
-                </h1>
-              </div>
-              <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                <h1 className="text-lg font-medium text-gray-700">Discount</h1>
-                <h1 className="text-lg font-semibold text-green-600">
-                  - LKR {(getTotalForLablePrice() - getTotal()).toFixed(2)}
-                </h1>
-              </div>
-              <div className="flex justify-between items-center border-t-2 border-gray-300 pt-3">
-                <h1 className="text-lg font-bold text-gray-900">Net Total</h1>
-                <h1 className="text-lg font-bold text-pink-600">
-                  LKR {getTotal().toFixed(2)}
-                </h1>
               </div>
             </div>
-          )}
-          <div className=" ">
-            <h1>Name</h1>
-            <input
-              className="w-full h-10 border border-gray-300 rounded-md px-3"
-              type="text"
-              placeholder="Your Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className=" ">
-            <h1>Address</h1>
-            <input
-              className="w-full h-10 border border-gray-300 rounded-md px-3"
-              type="text"
-              placeholder="Your Address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
           </div>
 
-          <div className=" ">
-            <h1>Contact</h1>
-            <input
-              className="w-full h-10 border border-gray-300 rounded-md px-3"
-              type="text"
-              placeholder="Your Contact"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-            />
-          </div>
-
-
-          {/* 🧾 Place Order Button */}
-          {cartLoaded && cart.length > 0 && (
-            <div className="w-full flex justify-end mt-6">
-              <button
-                className="w-[190px] py-3 bg-pink-600 hover:bg-pink-700 text-white text-lg font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
-                onClick={placeOrder}
-              >
-                Place Order
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
