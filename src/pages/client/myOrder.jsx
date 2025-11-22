@@ -3,7 +3,7 @@ import axios from "axios";
 
 // --- INTERNAL ICONS FOR STYLING ---
 const IconBox = () => (
-  <svg className="w-10 h-10 md:w-12 md:h-12 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+  <svg className="w-12 h-12 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
 );
 const IconClose = () => (
   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -16,9 +16,6 @@ const MyOrder = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showQuickView, setShowQuickView] = useState(false);
 
-    // ✅ Render URL එක දැම්මා (Phone එකට වැඩ කරන්න නම් මේක ඕන)
-    const backend = "https://crystal-beauty-clear-backend-rc8u.onrender.com";
-
     useEffect(() => {
         fetchOrders();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -27,10 +24,15 @@ const MyOrder = () => {
     const fetchOrders = async () => {
         try {
             setLoading(true);
+            
+            // ✅ FIX 1: Backend URL එක Render එකට මාරු කළා (Mobile වල වැඩ කරන්න නම් මේක ඕනේ)
+            const backend = "https://crystal-beauty-clear-backend-rc8u.onrender.com"; 
+            
             const token = localStorage.getItem("token");
             
+            // Note: Phone එකෙන් බලද්දී Token එක නැත්නම් (Log වෙලා නැත්නම්) Mock Data පෙන්නනවා.
+            // ඔයා Phone එකෙන් Login වුනාම නියම Orders පෙන්නයි.
             if (!token) {
-                // Testing Data (Token නැත්නම් පෙන්වන්න)
                 setOrders([
                     {
                         _id: "ORD-7829-XJ",
@@ -38,6 +40,16 @@ const MyOrder = () => {
                         total: 4500.50,
                         status: "Processing",
                         products: [{ product: { name: "Aloe Vera Gel", image: "https://images.unsplash.com/photo-1596462502278-27bfdd403348?q=80&w=2070&auto=format&fit=crop" } }]
+                    },
+                    {
+                        _id: "ORD-1120-PL",
+                        createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+                        total: 12500.00,
+                        status: "Delivered",
+                        products: [
+                            { product: { name: "Sandalwood Scrub", image: "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?q=80&w=2670&auto=format&fit=crop" } },
+                            { product: { name: "Face Cream" } }
+                        ]
                     }
                 ]);
                 setLoading(false);
@@ -90,40 +102,39 @@ const MyOrder = () => {
         return (
             <div className="min-h-screen flex flex-col justify-center items-center bg-emerald-50/30">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-200 border-t-emerald-600"></div>
-                <p className="mt-4 text-emerald-800 font-serif tracking-widest text-xs uppercase">Loading orders...</p>
+                <p className="mt-4 text-emerald-800 font-serif tracking-widest text-sm uppercase">Loading orders...</p>
             </div>
         );
 
     if (error && orders.length === 0)
         return (
             <div className="min-h-[60vh] flex flex-col justify-center items-center bg-emerald-50/30 text-center px-4">
-                <p className="text-red-500 font-medium bg-red-50 px-6 py-3 rounded-full border border-red-100 text-sm">{error}</p>
+                <p className="text-red-500 font-medium bg-red-50 px-6 py-3 rounded-full border border-red-100">{error}</p>
             </div>
         );
 
     return (
-        <div className="min-h-screen bg-emerald-50/30 font-sans py-8 md:py-12 px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="min-h-screen bg-emerald-50/30 font-sans py-12 px-4 sm:px-6 lg:px-8 pb-32">
             <div className="max-w-7xl mx-auto">
                 
-                {/* --- Header (Mobile: Text size reduced) --- */}
-                <div className="mb-8 md:mb-12 text-center md:text-left">
-                    <h1 className="text-2xl md:text-4xl font-serif font-bold text-emerald-950">My Orders</h1>
-                    <p className="text-emerald-600/70 mt-2 font-medium tracking-wide uppercase text-xs md:text-sm">
+                {/* --- Header --- */}
+                <div className="mb-12 text-center md:text-left">
+                    <h1 className="text-3xl md:text-4xl font-serif font-bold text-emerald-950">My Orders</h1>
+                    <p className="text-emerald-600/70 mt-2 font-medium tracking-wide uppercase text-sm">
                         History & Status • <span className="text-emerald-800">{orders.length} orders placed</span>
                     </p>
                 </div>
 
                 {orders.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 md:py-20 bg-white rounded-[2rem] shadow-sm border border-emerald-50 text-center">
+                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] shadow-sm border border-emerald-50 text-center">
                         <div className="bg-emerald-50 p-6 rounded-full mb-4">
                             <IconBox />
                         </div>
-                        <h3 className="text-lg md:text-xl font-serif text-emerald-900 font-bold">No orders found</h3>
-                        <p className="text-gray-500 mt-2 max-w-xs text-sm">Looks like you haven't discovered our natural treasures yet.</p>
+                        <h3 className="text-xl font-serif text-emerald-900 font-bold">No orders found</h3>
+                        <p className="text-gray-500 mt-2 max-w-xs">Looks like you haven't discovered our natural treasures yet.</p>
                     </div>
                 ) : (
-                    // --- Grid Gap Reduced for Mobile ---
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                         {orders.map((order, idx) => {
                             const orderKey = order._id ?? order.orderId ?? order.id ?? idx;
                             const orderLabel = order.orderId ?? order._id ?? order.id ?? "-";
@@ -141,11 +152,10 @@ const MyOrder = () => {
                             return (
                                 <div
                                     key={orderKey}
-                                    // --- Card Padding Reduced for Mobile ---
-                                    className="group bg-white rounded-[2rem] shadow-sm border border-emerald-100/50 p-5 md:p-6 hover:shadow-xl hover:shadow-emerald-100/40 transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                                    className="group bg-white rounded-[2rem] shadow-sm border border-emerald-100/50 p-6 hover:shadow-xl hover:shadow-emerald-100/40 transition-all duration-300 hover:-translate-y-1 flex flex-col"
                                 >
                                     {/* Top: Image & ID */}
-                                    <div className="relative h-40 md:h-48 bg-gray-50 rounded-3xl overflow-hidden mb-5 md:mb-6 border border-gray-100">
+                                    <div className="relative h-48 bg-gray-50 rounded-3xl overflow-hidden mb-6 border border-gray-100">
                                         {firstImage ? (
                                             <img
                                                 src={firstImage}
@@ -158,14 +168,14 @@ const MyOrder = () => {
                                             </div>
                                         )}
                                         
-                                        <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-white/90 backdrop-blur-md px-2.5 py-1 md:px-3 md:py-1.5 rounded-full shadow-sm border border-white">
+                                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white">
                                             <p className="text-[10px] font-bold tracking-wider text-emerald-800 uppercase">
                                                 #{orderLabel.toString().slice(-6)}
                                             </p>
                                         </div>
 
                                         {productCount > 1 && (
-                                            <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4 bg-black/70 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-2.5 py-1 md:px-3 md:py-1.5 rounded-full">
+                                            <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full">
                                                 +{productCount - 1} Items
                                             </div>
                                         )}
@@ -174,22 +184,22 @@ const MyOrder = () => {
                                     {/* Details */}
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold mb-1">Ordered On</p>
-                                            <p className="text-emerald-950 font-medium text-sm md:text-base">
+                                            <p className="text-xs text-gray-400 uppercase tracking-wider font-bold mb-1">Ordered On</p>
+                                            <p className="text-emerald-950 font-medium">
                                                 {dateVal ? new Date(dateVal).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "-"}
                                             </p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold mb-1">Total</p>
-                                            <p className="text-base md:text-lg font-serif font-bold text-emerald-700">
+                                            <p className="text-xs text-gray-400 uppercase tracking-wider font-bold mb-1">Total</p>
+                                            <p className="text-lg font-serif font-bold text-emerald-700">
                                                 LKR {totalVal.toFixed(2)}
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* Status Badge */}
-                                    <div className="mb-5 md:mb-6">
-                                        <span className={`inline-flex items-center px-2.5 py-1 md:px-3 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wide border ${
+                                    <div className="mb-6">
+                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${
                                             statusLabel === "Pending" || statusLabel === "Processing"
                                                 ? "bg-amber-50 text-amber-600 border-amber-100"
                                                 : statusLabel === "Shipped"
@@ -198,7 +208,7 @@ const MyOrder = () => {
                                                 ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                                 : "bg-gray-50 text-gray-600 border-gray-100"
                                         }`}>
-                                            <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full mr-2 ${
+                                            <span className={`w-2 h-2 rounded-full mr-2 ${
                                                 statusLabel === "Pending" || statusLabel === "Processing" ? "bg-amber-500" :
                                                 statusLabel === "Shipped" ? "bg-blue-500" :
                                                 statusLabel === "Delivered" ? "bg-emerald-500" : "bg-gray-400"
@@ -210,12 +220,12 @@ const MyOrder = () => {
                                     {/* Actions */}
                                     <div className="mt-auto flex gap-3 pt-4 border-t border-gray-50">
                                         <button
-                                            className="flex-1 py-2.5 md:py-3 rounded-xl bg-gray-50 text-gray-600 text-xs md:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                                            className="flex-1 py-3 rounded-xl bg-gray-50 text-gray-600 text-sm font-bold hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
                                             onClick={() => handleQuickView(order)}
                                         >
                                             Quick View
                                         </button>
-                                        <button className="flex-1 py-2.5 md:py-3 rounded-xl bg-emerald-600 text-white text-xs md:text-sm font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all">
+                                        <button className="flex-1 py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all">
                                             Details
                                         </button>
                                     </div>
@@ -232,13 +242,13 @@ const MyOrder = () => {
                         onClick={closeQuickView}
                     >
                         <div
-                            // ✅ Fix: Added max-h and overflow-y-auto so it scrolls on small phones
-                            className="bg-white rounded-t-[2rem] md:rounded-[2rem] shadow-2xl w-full max-w-md relative overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col"
+                            // ✅ FIX 2: Mobile Responsive Scroll Fix (max-h & overflow-y-auto)
+                            className="bg-white rounded-t-[2rem] md:rounded-[2rem] shadow-2xl w-full max-w-md relative overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Modal Header */}
-                            <div className="bg-emerald-900 p-5 md:p-6 flex justify-between items-center flex-shrink-0">
-                                <h2 className="text-white font-serif font-bold text-lg md:text-xl">
+                            <div className="bg-emerald-900 p-6 flex justify-between items-center flex-shrink-0">
+                                <h2 className="text-white font-serif font-bold text-xl">
                                     Order #{selectedOrder.orderId ?? selectedOrder._id ?? selectedOrder.id ?? "-"}
                                 </h2>
                                 <button
@@ -249,8 +259,8 @@ const MyOrder = () => {
                                 </button>
                             </div>
 
-                            {/* Modal Content - Scrollable */}
-                            <div className="p-6 md:p-8 overflow-y-auto">
+                            {/* Modal Content - Scrollable Area */}
+                            <div className="p-8 overflow-y-auto">
                                 {(() => {
                                     const firstImage = getFirstProductImage(selectedOrder);
                                     const productsArr = Array.isArray(selectedOrder.products) ? selectedOrder.products : Array.isArray(selectedOrder.items) ? selectedOrder.items : [];
@@ -261,7 +271,7 @@ const MyOrder = () => {
                                     return (
                                         <>
                                             {firstImage && (
-                                                <div className="mb-6 w-full h-40 md:h-48 bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 shadow-inner flex-shrink-0">
+                                                <div className="mb-6 w-full h-48 bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 shadow-inner flex-shrink-0">
                                                     <img src={firstImage} alt="Product Preview" className="w-full h-full object-cover" />
                                                 </div>
                                             )}
@@ -269,19 +279,19 @@ const MyOrder = () => {
                                             <div className="space-y-4">
                                                 <div className="flex justify-between border-b border-gray-50 pb-3">
                                                     <span className="text-gray-500 text-sm">Date</span>
-                                                    <span className="font-medium text-gray-800 text-sm">
+                                                    <span className="font-medium text-gray-800">
                                                         {selDate ? new Date(selDate).toLocaleDateString() : "-"}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between border-b border-gray-50 pb-3">
                                                     <span className="text-gray-500 text-sm">Status</span>
-                                                    <span className="font-bold text-emerald-600 text-sm">
+                                                    <span className="font-bold text-emerald-600">
                                                         {selectedOrder.status ?? "Unknown"}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between border-b border-gray-50 pb-3">
                                                     <span className="text-gray-500 text-sm">Total Amount</span>
-                                                    <span className="font-serif font-bold text-lg md:text-xl text-emerald-700">
+                                                    <span className="font-serif font-bold text-xl text-emerald-700">
                                                         LKR {selTotal.toFixed(2)}
                                                     </span>
                                                 </div>
@@ -302,7 +312,7 @@ const MyOrder = () => {
                                             </div>
 
                                             <button 
-                                                className="w-full mt-6 bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex-shrink-0"
+                                                className="w-full mt-8 bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex-shrink-0"
                                                 onClick={closeQuickView}
                                             >
                                                 View Full Details
