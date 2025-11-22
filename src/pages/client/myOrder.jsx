@@ -14,6 +14,7 @@ const MyOrder = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [sessionExpired, setSessionExpired] = useState(false); // New state for 401
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showQuickView, setShowQuickView] = useState(false);
 
@@ -25,21 +26,20 @@ const MyOrder = () => {
         try {
             setLoading(true);
             setError(null);
+            setSessionExpired(false);
             
-            // ✅ 1. Render Backend URL (Mobile සහ Desktop දෙකටම)
+            // ✅ Render Backend URL
             const backend = "https://crystal-beauty-clear-backend-rc8u.onrender.com"; 
             
             const token = localStorage.getItem("token");
             
-            // ✅ 2. Token එක නැත්නම් හෝ Login වෙලා නැත්නම් DEMO DATA පෙන්වන්න (Error පෙන්වන්න එපා)
+            // Token එක නැත්නම් Login වෙන්න කියන්න
             if (!token) {
-                console.log("No token found. Showing Demo Data.");
-                showDemoData(); 
+                setSessionExpired(true);
                 setLoading(false);
                 return;
             }
 
-            // Server එකෙන් Orders ඉල්ලීම
             const res = await axios.get(`${backend}/api/order`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -49,43 +49,22 @@ const MyOrder = () => {
         } catch (err) {
             console.error("Error fetching orders:", err);
             
-            // ✅ 3. Login Error (401) ආවත් Demo Data පෙන්වන්න (User ට අවුලක් පේන්නේ නෑ)
-            // නමුත් නියම Data බලන්න නම් User අනිවාර්යයෙන් Logout වී Login විය යුතුයි.
+            // ✅ මෙන්න විසඳුම: 401 Error එකක් ආවොත් පරණ Token එක මකනවා
             if (err.response && err.response.status === 401) {
-               console.log("Token expired or invalid. Showing Demo Data.");
-               showDemoData();
-               setError("Viewing as Guest (Please Login to see Real Orders)");
+                localStorage.removeItem("token"); // පරණ Token එක අයින් කරනවා
+                localStorage.removeItem("user");
+                setSessionExpired(true); // Login Screen එක පෙන්නනවා
             } else {
-                // Network Error නම් Demo Data පෙන්වා Error එක යටින් දාන්න
-                showDemoData();
-                setError("Connection Failed. Showing Offline Data.");
+                // වෙනත් Error එකක් නම් (Network අවුලක් වගේ)
+                setError("Connection issue. Using Demo Data for now.");
+                // Demo Data පෙන්වන්න (User Experience එක කැඩෙන්නේ නැති වෙන්න)
+                setOrders([
+                    { _id: "DEMO-1", createdAt: new Date().toISOString(), total: 4500.00, status: "Processing (Demo)", products: [] }
+                ]);
             }
         } finally {
             setLoading(false);
         }
-    };
-
-    // --- DEMO DATA FUNCTION (User ට Page එක හිස්ව පෙනීම වලක්වයි) ---
-    const showDemoData = () => {
-        setOrders([
-            {
-                _id: "DEMO-7829-XJ",
-                createdAt: new Date().toISOString(),
-                total: 4500.50,
-                status: "Processing",
-                products: [{ product: { name: "Aloe Vera Gel (Demo)", image: "https://images.unsplash.com/photo-1596462502278-27bfdd403348?q=80&w=2070&auto=format&fit=crop" } }]
-            },
-            {
-                _id: "DEMO-1120-PL",
-                createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-                total: 12500.00,
-                status: "Delivered",
-                products: [
-                    { product: { name: "Sandalwood Scrub (Demo)", image: "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?q=80&w=2670&auto=format&fit=crop" } },
-                    { product: { name: "Face Cream" } }
-                ]
-            }
-        ]);
     };
 
     const handleQuickView = (order) => { setSelectedOrder(order); setShowQuickView(true); };
@@ -106,6 +85,26 @@ const MyOrder = () => {
             </div>
         );
 
+    // ✅ Session Expired / Not Logged In Screen
+    if (sessionExpired)
+        return (
+            <div className="min-h-screen flex flex-col justify-center items-center bg-emerald-50/30 px-4 text-center">
+                <div className="bg-white p-8 rounded-[2rem] shadow-xl max-w-sm w-full border border-emerald-100">
+                    <div className="text-4xl mb-4">🔒</div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Authentication Required</h3>
+                    <p className="text-gray-500 text-sm mb-6">
+                        Your session has expired or is invalid. Please login again to verify your identity.
+                    </p>
+                    <button 
+                        onClick={() => window.location.href = "/login"} 
+                        className="block w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200"
+                    >
+                        Login Now
+                    </button>
+                </div>
+            </div>
+        );
+
     return (
         <div className="min-h-screen bg-emerald-50/30 font-sans py-12 px-4 sm:px-6 lg:px-8 pb-32">
             <div className="max-w-7xl mx-auto">
@@ -114,12 +113,7 @@ const MyOrder = () => {
                     <p className="text-emerald-600/70 mt-2 font-medium tracking-wide uppercase text-sm">
                         History & Status • <span className="text-emerald-800">{orders.length} orders placed</span>
                     </p>
-                    {/* Error Message එකක් තිබේ නම් මෙතන පෙන්වයි */}
-                    {error && (
-                        <div className="mt-4 bg-amber-50 text-amber-700 px-4 py-2 rounded-lg text-sm inline-block border border-amber-200">
-                             ⚠️ {error} <Link to="/login" className="underline font-bold ml-2">Login Again</Link>
-                        </div>
-                    )}
+                    {error && <p className="text-amber-600 text-xs mt-2 font-bold">{error}</p>}
                 </div>
 
                 {orders.length === 0 ? (
@@ -127,7 +121,7 @@ const MyOrder = () => {
                         <div className="bg-emerald-50 p-6 rounded-full mb-4"><IconBox /></div>
                         <h3 className="text-xl font-serif text-emerald-900 font-bold">No orders found</h3>
                         <p className="text-gray-500 mt-2 max-w-xs">Start shopping to see your orders here.</p>
-                        <Link to="/products" className="mt-4 text-emerald-600 font-bold hover:underline">Go to Shop</Link>
+                        <Link to="/products" className="mt-4 text-emerald-600 font-bold hover:underline">Shop Now</Link>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
@@ -177,16 +171,14 @@ const MyOrder = () => {
                     </div>
                 )}
 
-                {/* --- Quick View Modal (FIXED FOR MOBILE SCROLLING) --- */}
+                {/* Quick View Modal (Mobile Fixed) */}
                 {showQuickView && selectedOrder && (
                     <div className="fixed inset-0 bg-emerald-950/40 backdrop-blur-sm flex items-end md:items-center justify-center z-50 p-0 md:p-4" onClick={closeQuickView}>
-                        {/* ✅ FIX: max-h-[90vh] added for scrolling */}
                         <div className="bg-white rounded-t-[2rem] md:rounded-[2rem] shadow-2xl w-full max-w-md relative overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
                             <div className="bg-emerald-900 p-6 flex justify-between items-center flex-shrink-0">
                                 <h2 className="text-white font-serif font-bold text-xl">Order Details</h2>
                                 <button className="text-emerald-200 hover:text-white bg-white/10 p-2 rounded-full" onClick={closeQuickView}><IconClose /></button>
                             </div>
-
                             <div className="p-8 overflow-y-auto">
                                 {getFirstProductImage(selectedOrder) && (
                                     <div className="mb-6 w-full h-48 bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 shadow-inner flex-shrink-0">
