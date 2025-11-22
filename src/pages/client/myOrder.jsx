@@ -24,33 +24,15 @@ const MyOrder = () => {
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            // Changed for Preview stability (You can revert to import.meta.env.VITE_BACKEND_URL)
-            const backend = "http://localhost:5000"; 
+            
+            // --- FIX: Changed localhost to Render URL ---
+            const backend = import.meta.env.VITE_BACKEND_URL || "https://crystal-beauty-clear-backend-rc8u.onrender.com";
+            
             const token = localStorage.getItem("token");
             
-            // Note: In this preview, token might be missing, so it might show error or empty.
             if (!token) {
-                // For PREVIEW ONLY: If no token, we set mock data to show the design. 
-                // Remove this else block in production.
-                setOrders([
-                    {
-                        _id: "ORD-7829-XJ",
-                        createdAt: new Date().toISOString(),
-                        total: 4500.50,
-                        status: "Processing",
-                        products: [{ product: { name: "Aloe Vera Gel", image: "https://images.unsplash.com/photo-1596462502278-27bfdd403348?q=80&w=2070&auto=format&fit=crop" } }]
-                    },
-                    {
-                        _id: "ORD-1120-PL",
-                        createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-                        total: 12500.00,
-                        status: "Delivered",
-                        products: [
-                            { product: { name: "Sandalwood Scrub", image: "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?q=80&w=2670&auto=format&fit=crop" } },
-                            { product: { name: "Face Cream" } }
-                        ]
-                    }
-                ]);
+                // Token එක නැත්නම් Login වෙන්න කියලා error එකක් පෙන්නමු හෝ හිස්ව තබමු
+                setError("Please login to view orders");
                 setLoading(false);
                 return;
             }
@@ -62,8 +44,13 @@ const MyOrder = () => {
             setOrders(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error("Error fetching orders:", err);
-            const msg = err.response?.data?.message || err.message || "Failed to fetch orders";
-            setError(msg);
+            // 401 Error එකක් ආවොත් (Token Expired නම්)
+            if (err.response && err.response.status === 401) {
+                setError("Session expired. Please login again.");
+            } else {
+                const msg = err.response?.data?.message || err.message || "Failed to fetch orders";
+                setError(msg);
+            }
             setOrders([]);
         } finally {
             setLoading(false);
