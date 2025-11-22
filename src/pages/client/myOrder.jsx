@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-// ==========================================
-// ✅ FIXED: Using your Live Render Backend URL
-// ==========================================
-const BACKEND_URL = "https://crystal-beauty-clear-backend-rc8u.onrender.com";
-// ==========================================
-
+// --- INTERNAL ICONS FOR STYLING ---
 const IconBox = () => (
   <svg className="w-10 h-10 md:w-12 md:h-12 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
 );
 const IconClose = () => (
   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-);
-const IconRefresh = () => (
-  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
 );
 
 const MyOrder = () => {
@@ -24,41 +16,42 @@ const MyOrder = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showQuickView, setShowQuickView] = useState(false);
 
+    // ✅ Render URL එක දැම්මා (Phone එකට වැඩ කරන්න නම් මේක ඕන)
+    const backend = "https://crystal-beauty-clear-backend-rc8u.onrender.com";
+
     useEffect(() => {
         fetchOrders();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            setError(null);
-            
             const token = localStorage.getItem("token");
-
-            // If no token, show demo data (Remove this block if you want strict security)
+            
             if (!token) {
-                console.warn("No token found");
-                // Optional: You can redirect to login here
+                // Testing Data (Token නැත්නම් පෙන්වන්න)
+                setOrders([
+                    {
+                        _id: "ORD-7829-XJ",
+                        createdAt: new Date().toISOString(),
+                        total: 4500.50,
+                        status: "Processing",
+                        products: [{ product: { name: "Aloe Vera Gel", image: "https://images.unsplash.com/photo-1596462502278-27bfdd403348?q=80&w=2070&auto=format&fit=crop" } }]
+                    }
+                ]);
                 setLoading(false);
-                return; 
+                return;
             }
 
-            // Using the Render URL explicitly
-            const res = await axios.get(`${BACKEND_URL}/api/order`, {
+            const res = await axios.get(`${backend}/api/order`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             setOrders(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
-            console.error("Fetch Error:", err);
-            let msg = "Failed to load orders.";
-            
-            if (err.message === "Network Error") {
-                 msg = "Connection failed. Please check your internet.";
-            } else if (err.response) {
-                msg = err.response.data.message || "Server Error";
-            }
-            
+            console.error("Error fetching orders:", err);
+            const msg = err.response?.data?.message || err.message || "Failed to fetch orders";
             setError(msg);
             setOrders([]);
         } finally {
@@ -79,164 +72,244 @@ const MyOrder = () => {
     const getFirstProductImage = (order) => {
         const products = order?.products ?? order?.items ?? [];
         if (!Array.isArray(products) || products.length === 0) return null;
+
         const first = products[0];
-        // Checks various image paths depending on how your DB saves it
-        return first?.image || 
-               first?.product?.image || 
-               first?.images?.[0] ||
-               first?.product?.images?.[0] ||
-               null;
+        const maybeImage =
+            first?.image ||
+            first?.images?.[0] ||
+            first?.product?.image ||
+            first?.product?.images?.[0] ||
+            first?.product?.thumbnail ||
+            first?.thumbnail ||
+            null;
+
+        return maybeImage || null;
     };
 
     if (loading)
         return (
             <div className="min-h-screen flex flex-col justify-center items-center bg-emerald-50/30">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-200 border-t-emerald-600"></div>
-                <p className="mt-4 text-emerald-800 font-serif text-xs uppercase animate-pulse">Loading Orders...</p>
+                <p className="mt-4 text-emerald-800 font-serif tracking-widest text-xs uppercase">Loading orders...</p>
             </div>
         );
 
-    // --- ERROR UI ---
     if (error && orders.length === 0)
         return (
-            <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 px-6">
-                <div className="bg-white p-8 rounded-3xl shadow-lg max-w-sm w-full border border-red-100 text-center">
-                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-800 mb-2">Oops!</h3>
-                    <p className="text-gray-500 text-sm mb-6">{error}</p>
-                    <button 
-                        onClick={fetchOrders} 
-                        className="w-full flex items-center justify-center py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-all font-bold shadow-md shadow-emerald-200"
-                    >
-                        <IconRefresh /> Try Again
-                    </button>
-                </div>
+            <div className="min-h-[60vh] flex flex-col justify-center items-center bg-emerald-50/30 text-center px-4">
+                <p className="text-red-500 font-medium bg-red-50 px-6 py-3 rounded-full border border-red-100 text-sm">{error}</p>
             </div>
         );
 
     return (
         <div className="min-h-screen bg-emerald-50/30 font-sans py-8 md:py-12 px-4 sm:px-6 lg:px-8 pb-24">
             <div className="max-w-7xl mx-auto">
+                
+                {/* --- Header (Mobile: Text size reduced) --- */}
                 <div className="mb-8 md:mb-12 text-center md:text-left">
                     <h1 className="text-2xl md:text-4xl font-serif font-bold text-emerald-950">My Orders</h1>
-                    <p className="text-emerald-600/70 mt-1 md:mt-2 font-medium tracking-wide uppercase text-xs md:text-sm">
-                        History & Status • <span className="text-emerald-800 font-bold">{orders.length} orders</span>
+                    <p className="text-emerald-600/70 mt-2 font-medium tracking-wide uppercase text-xs md:text-sm">
+                        History & Status • <span className="text-emerald-800">{orders.length} orders placed</span>
                     </p>
                 </div>
 
                 {orders.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-[2rem] shadow-sm border border-emerald-50 text-center mx-2 md:mx-0">
-                        <div className="bg-emerald-50 p-6 rounded-full mb-4"><IconBox /></div>
-                        <h3 className="text-lg font-serif text-emerald-900 font-bold">No orders found</h3>
-                        <p className="text-gray-400 text-sm mt-2">Start shopping to see your orders here.</p>
+                    <div className="flex flex-col items-center justify-center py-16 md:py-20 bg-white rounded-[2rem] shadow-sm border border-emerald-50 text-center">
+                        <div className="bg-emerald-50 p-6 rounded-full mb-4">
+                            <IconBox />
+                        </div>
+                        <h3 className="text-lg md:text-xl font-serif text-emerald-900 font-bold">No orders found</h3>
+                        <p className="text-gray-500 mt-2 max-w-xs text-sm">Looks like you haven't discovered our natural treasures yet.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+                    // --- Grid Gap Reduced for Mobile ---
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-8">
                         {orders.map((order, idx) => {
-                            const totalVal = Number(order.total || 0);
+                            const orderKey = order._id ?? order.orderId ?? order.id ?? idx;
+                            const orderLabel = order.orderId ?? order._id ?? order.id ?? "-";
+                            const dateVal = order.createdAt ?? order.date ?? order.purchasedAt ?? null;
+                            const totalVal = Number(order.total ?? order.amount ?? 0) || 0;
+                            const rawStatus = (order.status ?? order.orderStatus ?? "").toString();
+                            const statusLabel = rawStatus
+                                ? rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1)
+                                : "Unknown";
+
+                            const productsArr = Array.isArray(order.products) ? order.products : Array.isArray(order.items) ? order.items : [];
+                            const productCount = productsArr.length;
                             const firstImage = getFirstProductImage(order);
-                            
+
                             return (
-                                <div key={idx} className="bg-white rounded-3xl shadow-sm border border-emerald-100/50 p-5 flex flex-col hover:shadow-lg transition-shadow duration-300">
-                                    <div className="relative h-40 bg-gray-50 rounded-2xl overflow-hidden mb-5">
+                                <div
+                                    key={orderKey}
+                                    // --- Card Padding Reduced for Mobile ---
+                                    className="group bg-white rounded-[2rem] shadow-sm border border-emerald-100/50 p-5 md:p-6 hover:shadow-xl hover:shadow-emerald-100/40 transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                                >
+                                    {/* Top: Image & ID */}
+                                    <div className="relative h-40 md:h-48 bg-gray-50 rounded-3xl overflow-hidden mb-5 md:mb-6 border border-gray-100">
                                         {firstImage ? (
-                                            <img src={firstImage} alt="Order" className="w-full h-full object-cover" />
+                                            <img
+                                                src={firstImage}
+                                                alt={`order-${orderLabel}`}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            />
                                         ) : (
-                                            <div className="flex items-center justify-center w-full h-full text-emerald-100"><IconBox /></div>
+                                            <div className="flex items-center justify-center w-full h-full text-emerald-200">
+                                                <IconBox />
+                                            </div>
                                         )}
-                                        <div className="absolute top-3 left-3 bg-white/90 px-2 py-1 rounded-full text-[10px] font-bold text-emerald-800 border border-emerald-100">
-                                            #{order._id?.slice(-6) || "ID"}
+                                        
+                                        <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-white/90 backdrop-blur-md px-2.5 py-1 md:px-3 md:py-1.5 rounded-full shadow-sm border border-white">
+                                            <p className="text-[10px] font-bold tracking-wider text-emerald-800 uppercase">
+                                                #{orderLabel.toString().slice(-6)}
+                                            </p>
                                         </div>
+
+                                        {productCount > 1 && (
+                                            <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4 bg-black/70 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-2.5 py-1 md:px-3 md:py-1.5 rounded-full">
+                                                +{productCount - 1} Items
+                                            </div>
+                                        )}
                                     </div>
-                                    
-                                    <div className="flex justify-between items-center mb-4">
+
+                                    {/* Details */}
+                                    <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Date</p>
-                                            <p className="text-sm font-medium text-emerald-950">
-                                                {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A"}
+                                            <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold mb-1">Ordered On</p>
+                                            <p className="text-emerald-950 font-medium text-sm md:text-base">
+                                                {dateVal ? new Date(dateVal).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "-"}
                                             </p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total</p>
-                                            <p className="text-lg font-serif font-bold text-emerald-700">LKR {totalVal.toFixed(2)}</p>
+                                            <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold mb-1">Total</p>
+                                            <p className="text-base md:text-lg font-serif font-bold text-emerald-700">
+                                                LKR {totalVal.toFixed(2)}
+                                            </p>
                                         </div>
                                     </div>
 
-                                    {/* Status Bar */}
-                                    <div className="mb-4">
-                                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                                            order.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' : 
-                                            order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' :
-                                            'bg-amber-100 text-amber-700'
+                                    {/* Status Badge */}
+                                    <div className="mb-5 md:mb-6">
+                                        <span className={`inline-flex items-center px-2.5 py-1 md:px-3 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wide border ${
+                                            statusLabel === "Pending" || statusLabel === "Processing"
+                                                ? "bg-amber-50 text-amber-600 border-amber-100"
+                                                : statusLabel === "Shipped"
+                                                ? "bg-blue-50 text-blue-600 border-blue-100"
+                                                : statusLabel === "Delivered"
+                                                ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                                : "bg-gray-50 text-gray-600 border-gray-100"
                                         }`}>
-                                            {order.status || 'Processing'}
+                                            <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full mr-2 ${
+                                                statusLabel === "Pending" || statusLabel === "Processing" ? "bg-amber-500" :
+                                                statusLabel === "Shipped" ? "bg-blue-500" :
+                                                statusLabel === "Delivered" ? "bg-emerald-500" : "bg-gray-400"
+                                            }`}></span>
+                                            {statusLabel}
                                         </span>
                                     </div>
 
-                                    <button 
-                                        onClick={() => handleQuickView(order)} 
-                                        className="w-full mt-auto py-3 bg-gray-50 text-emerald-700 text-sm font-bold rounded-xl hover:bg-emerald-600 hover:text-white transition-all active:scale-95"
-                                    >
-                                        View Details
-                                    </button>
+                                    {/* Actions */}
+                                    <div className="mt-auto flex gap-3 pt-4 border-t border-gray-50">
+                                        <button
+                                            className="flex-1 py-2.5 md:py-3 rounded-xl bg-gray-50 text-gray-600 text-xs md:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                                            onClick={() => handleQuickView(order)}
+                                        >
+                                            Quick View
+                                        </button>
+                                        <button className="flex-1 py-2.5 md:py-3 rounded-xl bg-emerald-600 text-white text-xs md:text-sm font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all">
+                                            Details
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })}
                     </div>
                 )}
 
-                {/* MODAL */}
+                {/* --- Quick View Modal (FIXED FOR MOBILE SCROLLING) --- */}
                 {showQuickView && selectedOrder && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center z-50 p-0 md:p-4" onClick={closeQuickView}>
-                        <div className="bg-white rounded-t-[2rem] md:rounded-[2rem] w-full max-w-md p-6 animate-slide-up shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                            <div className="flex justify-between items-center mb-6 sticky top-0 bg-white z-10">
-                                <h3 className="font-serif font-bold text-xl text-emerald-900">Order Details</h3>
-                                <button onClick={closeQuickView} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"><IconClose /></button>
-                            </div>
-                            
-                            <div className="space-y-5">
-                                {/* Image in Modal */}
-                                {getFirstProductImage(selectedOrder) && (
-                                    <div className="w-full h-40 bg-gray-100 rounded-2xl overflow-hidden">
-                                        <img src={getFirstProductImage(selectedOrder)} className="w-full h-full object-cover" alt="Product" />
-                                    </div>
-                                )}
-
-                                <div className="space-y-3">
-                                    <div className="flex justify-between border-b border-gray-100 pb-3">
-                                        <span className="text-gray-500 text-sm">Order ID</span>
-                                        <span className="font-bold text-gray-900">#{selectedOrder._id}</span>
-                                    </div>
-                                    <div className="flex justify-between border-b border-gray-100 pb-3">
-                                        <span className="text-gray-500 text-sm">Status</span>
-                                        <span className="font-bold text-emerald-600 uppercase">{selectedOrder.status || "Processing"}</span>
-                                    </div>
-                                    <div className="flex justify-between border-b border-gray-100 pb-3">
-                                        <span className="text-gray-500 text-sm">Total Amount</span>
-                                        <span className="font-serif font-bold text-xl text-emerald-700">LKR {Number(selectedOrder.total).toFixed(2)}</span>
-                                    </div>
-                                </div>
-
-                                {/* Items List */}
-                                <div>
-                                    <p className="text-xs font-bold text-gray-400 uppercase mb-2">Items</p>
-                                    <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-                                        {(selectedOrder.products || selectedOrder.items || []).map((item, i) => (
-                                            <div key={i} className="flex justify-between text-sm">
-                                                <span className="text-gray-800 font-medium truncate w-2/3">
-                                                    {item.product?.name || item.name || "Product"}
-                                                </span>
-                                                <span className="text-gray-500">x{item.quantity || 1}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <button onClick={closeQuickView} className="w-full bg-emerald-900 text-white font-bold py-4 rounded-xl mt-2 active:scale-95 transition-transform shadow-lg shadow-emerald-200">
-                                    Close
+                    <div
+                        className="fixed inset-0 bg-emerald-950/40 backdrop-blur-sm flex items-end md:items-center justify-center z-50 p-0 md:p-4"
+                        onClick={closeQuickView}
+                    >
+                        <div
+                            // ✅ Fix: Added max-h and overflow-y-auto so it scrolls on small phones
+                            className="bg-white rounded-t-[2rem] md:rounded-[2rem] shadow-2xl w-full max-w-md relative overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className="bg-emerald-900 p-5 md:p-6 flex justify-between items-center flex-shrink-0">
+                                <h2 className="text-white font-serif font-bold text-lg md:text-xl">
+                                    Order #{selectedOrder.orderId ?? selectedOrder._id ?? selectedOrder.id ?? "-"}
+                                </h2>
+                                <button
+                                    className="text-emerald-200 hover:text-white transition-colors bg-white/10 p-2 rounded-full hover:bg-white/20"
+                                    onClick={closeQuickView}
+                                >
+                                    <IconClose />
                                 </button>
+                            </div>
+
+                            {/* Modal Content - Scrollable */}
+                            <div className="p-6 md:p-8 overflow-y-auto">
+                                {(() => {
+                                    const firstImage = getFirstProductImage(selectedOrder);
+                                    const productsArr = Array.isArray(selectedOrder.products) ? selectedOrder.products : Array.isArray(selectedOrder.items) ? selectedOrder.items : [];
+                                    const productNames = productsArr.map(p => p.name ?? p.product?.name ?? p.title ?? p.product?.title).filter(Boolean);
+                                    const selTotal = Number(selectedOrder.total ?? selectedOrder.amount ?? 0) || 0;
+                                    const selDate = selectedOrder.createdAt ?? selectedOrder.date ?? null;
+
+                                    return (
+                                        <>
+                                            {firstImage && (
+                                                <div className="mb-6 w-full h-40 md:h-48 bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 shadow-inner flex-shrink-0">
+                                                    <img src={firstImage} alt="Product Preview" className="w-full h-full object-cover" />
+                                                </div>
+                                            )}
+
+                                            <div className="space-y-4">
+                                                <div className="flex justify-between border-b border-gray-50 pb-3">
+                                                    <span className="text-gray-500 text-sm">Date</span>
+                                                    <span className="font-medium text-gray-800 text-sm">
+                                                        {selDate ? new Date(selDate).toLocaleDateString() : "-"}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-gray-50 pb-3">
+                                                    <span className="text-gray-500 text-sm">Status</span>
+                                                    <span className="font-bold text-emerald-600 text-sm">
+                                                        {selectedOrder.status ?? "Unknown"}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-gray-50 pb-3">
+                                                    <span className="text-gray-500 text-sm">Total Amount</span>
+                                                    <span className="font-serif font-bold text-lg md:text-xl text-emerald-700">
+                                                        LKR {selTotal.toFixed(2)}
+                                                    </span>
+                                                </div>
+                                                
+                                                <div>
+                                                    <span className="text-gray-500 text-sm block mb-2">Items ({productNames.length})</span>
+                                                    <ul className="text-sm text-gray-800 font-medium space-y-1 bg-gray-50 p-4 rounded-xl">
+                                                        {productNames.length > 0 ? (
+                                                            productNames.slice(0, 3).map((name, i) => (
+                                                                <li key={i} className="truncate">• {name}</li>
+                                                            ))
+                                                        ) : (
+                                                            <li className="text-gray-400 italic">No details available</li>
+                                                        )}
+                                                        {productNames.length > 3 && <li className="text-xs text-gray-400 italic">+ {productNames.length - 3} more...</li>}
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <button 
+                                                className="w-full mt-6 bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex-shrink-0"
+                                                onClick={closeQuickView}
+                                            >
+                                                View Full Details
+                                            </button>
+                                        </>
+                                    );
+                                })()}
                             </div>
                         </div>
                     </div>
