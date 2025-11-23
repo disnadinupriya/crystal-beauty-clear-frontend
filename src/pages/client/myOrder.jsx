@@ -218,13 +218,9 @@ const MyOrder = () => {
 
                                     {/* Actions */}
                                     <div className="mt-auto flex gap-3 pt-4 border-t border-gray-50">
-                                        <button
-                                            className="flex-1 py-3 rounded-xl bg-gray-50 text-gray-600 text-sm font-bold hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
-                                            onClick={() => handleQuickView(order)}
-                                        >
-                                            Quick View
-                                        </button>
-                                        <button className="flex-1 py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all">
+                                        
+                                        <button className="flex-1 py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all"
+                                        onClick={() => handleQuickView(order)}>
                                             Details
                                         </button>
                                     </div>
@@ -312,7 +308,7 @@ const MyOrder = () => {
                                                 className="w-full mt-8 bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200"
                                                 onClick={closeQuickView}
                                             >
-                                                View Full Details
+                                                Back to Orders
                                             </button>
                                         </>
                                     );

@@ -1,9 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-// --- INTERNAL SVG ICONS (No external packages needed) ---
-// Header-er motoi ekhane amra sorasori SVG use korchi error eranor jonno.
-
+// --- INTERNAL SVG ICONS ---
 const IconFacebook = () => (
   <svg fill="currentColor" viewBox="0 0 320 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
     <path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"></path>
@@ -26,99 +24,70 @@ const currentYear = new Date().getFullYear();
 
 function Footer() {
   return (
-    // Changed bg-gray-900 to bg-[#022c22] (Deep Emerald) to match Header theme
     <footer id="site-footer" className="bg-[#022c22] text-emerald-100/80 font-sans border-t border-emerald-800/50">
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-6 py-8 md:py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
         
-        {/* Brand Section */}
-        <div className="space-y-4">
-          {/* Serif Font for Luxury Feel */}
-          <h3 className="text-3xl font-serif font-bold text-white tracking-wide">Crystal Beauty Clear</h3>
-          <p className="text-sm text-emerald-200/70 leading-relaxed">
+        {/* 1. Brand Section (Full width on Mobile) */}
+        <div className="space-y-3 text-center md:text-left">
+          <h3 className="text-2xl md:text-3xl font-serif font-bold text-white tracking-wide">Crystal Beauty Clear</h3>
+          <p className="text-xs md:text-sm text-emerald-200/70 leading-relaxed max-w-sm mx-auto md:mx-0">
             Sustainable Beauty, Inspired by Nature. Pure ingredients for a pure soul.
           </p>
-          <div className="flex items-center space-x-3 pt-2">
-            <a href="#" aria-label="Facebook" className="w-10 h-10 rounded-full bg-emerald-900/50 border border-emerald-800 flex items-center justify-center text-white hover:bg-emerald-600 hover:border-emerald-500 transition-all duration-300 shadow-sm hover:shadow-emerald-500/20">
+          <div className="flex items-center justify-center md:justify-start space-x-3 pt-1">
+            <a href="#" className="w-8 h-8 rounded-full bg-emerald-900/50 border border-emerald-800 flex items-center justify-center text-white hover:bg-emerald-600 hover:border-emerald-500 transition-all">
               <IconFacebook />
             </a>
-            <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-full bg-emerald-900/50 border border-emerald-800 flex items-center justify-center text-white hover:bg-emerald-600 hover:border-emerald-500 transition-all duration-300 shadow-sm hover:shadow-emerald-500/20">
+            <a href="#" className="w-8 h-8 rounded-full bg-emerald-900/50 border border-emerald-800 flex items-center justify-center text-white hover:bg-emerald-600 hover:border-emerald-500 transition-all">
               <IconInstagram />
             </a>
-            <a href="#" aria-label="LinkedIn" className="w-10 h-10 rounded-full bg-emerald-900/50 border border-emerald-800 flex items-center justify-center text-white hover:bg-emerald-600 hover:border-emerald-500 transition-all duration-300 shadow-sm hover:shadow-emerald-500/20">
+            <a href="#" className="w-8 h-8 rounded-full bg-emerald-900/50 border border-emerald-800 flex items-center justify-center text-white hover:bg-emerald-600 hover:border-emerald-500 transition-all">
               <IconLinkedin />
             </a>
           </div>
         </div>
 
-        {/* Quick Links */}
-        <div>
-          <h4 className="text-lg font-semibold text-white uppercase tracking-wider mb-4 border-b border-emerald-800/50 pb-2 inline-block">Quick Links</h4>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link to="/" className="hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/products" className="hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Products
-              </Link>
-            </li>
-            <li>
-              <Link to="/reviews" className="hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Reviews
-              </Link>
-            </li>
-            <li>
-              <Link to="/blog" className="hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Blog / Tips
-              </Link>
-            </li>
-          </ul>
+        {/* --- Mobile Only: Grid Layout for Links --- */}
+        {/* This wrapper makes Quick Links & Customer Care appear side-by-side on mobile */}
+        <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-4 md:gap-10">
+            
+            {/* 2. Quick Links */}
+            <div className="text-center md:text-left">
+              <h4 className="text-sm md:text-lg font-semibold text-white uppercase tracking-wider mb-3 border-b border-emerald-800/50 pb-1 inline-block">Quick Links</h4>
+              <ul className="space-y-1 text-xs md:text-sm">
+                <li><Link to="/" className="hover:text-white block py-0.5">Home</Link></li>
+                <li><Link to="/products" className="hover:text-white block py-0.5">Products</Link></li>
+                <li><Link to="/reviews" className="hover:text-white block py-0.5">Reviews</Link></li>
+                <li><Link to="/blog" className="hover:text-white block py-0.5">Blog / Tips</Link></li>
+              </ul>
+            </div>
+
+            {/* 3. Customer Care */}
+            <div className="text-center md:text-left">
+              <h4 className="text-sm md:text-lg font-semibold text-white uppercase tracking-wider mb-3 border-b border-emerald-800/50 pb-1 inline-block">Care</h4>
+              <ul className="space-y-1 text-xs md:text-sm">
+                <li><Link to="/contact" className="hover:text-white block py-0.5">Contact Us</Link></li>
+                <li><Link to="/shipping" className="hover:text-white block py-0.5">Shipping</Link></li>
+                <li><Link to="/faq" className="hover:text-white block py-0.5">FAQ</Link></li>
+                <li><Link to="/privacy" className="hover:text-white block py-0.5">Privacy Policy</Link></li>
+              </ul>
+            </div>
         </div>
 
-        {/* Customer Service */}
-        <div>
-          <h4 className="text-lg font-semibold text-white uppercase tracking-wider mb-4 border-b border-emerald-800/50 pb-2 inline-block">Customer Care</h4>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link to="/contact" className="hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Contact Us
-              </Link>
-            </li>
-            <li>
-              <Link to="/shipping" className="hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Shipping & Returns
-              </Link>
-            </li>
-            <li>
-              <Link to="/faq" className="hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> FAQ
-              </Link>
-            </li>
-            <li>
-              <Link to="/privacy" className="hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Privacy Policy
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Contact Info */}
-        <div>
-          <h4 className="text-lg font-semibold text-white uppercase tracking-wider mb-4 border-b border-emerald-800/50 pb-2 inline-block">Get in Touch</h4>
-          <address className="not-italic text-sm space-y-3">
-            <p className="flex items-start gap-3">
-              <span className="text-emerald-400 mt-1">📍</span>
-              <span>123 Crystal Blvd<br />Beauty Complex, Colombo, Sri Lanka</span>
+        {/* 4. Contact Info (Full width on Mobile) */}
+        <div className="text-center md:text-left">
+          <h4 className="text-sm md:text-lg font-semibold text-white uppercase tracking-wider mb-3 border-b border-emerald-800/50 pb-1 inline-block">Get in Touch</h4>
+          <address className="not-italic text-xs md:text-sm space-y-2">
+            <p className="flex flex-col md:flex-row items-center md:items-start gap-1 md:gap-3">
+              <span className="text-emerald-400">📍</span>
+              <span>123 Crystal Blvd<br />Beauty Complex, Colombo</span>
             </p>
-            <p className="flex items-center gap-3">
+            <p className="flex flex-col md:flex-row items-center gap-1 md:gap-3">
               <span className="text-emerald-400">✉️</span>
-              <a className="hover:text-white hover:underline decoration-emerald-500 underline-offset-4 transition-all" href="mailto:info@crystalbeauty.com">info@crystalbeauty.com</a>
+              <a className="hover:text-white" href="mailto:info@crystalbeauty.com">info@crystalbeauty.com</a>
             </p>
-            <p className="flex items-center gap-3">
+            <p className="flex flex-col md:flex-row items-center gap-1 md:gap-3">
               <span className="text-emerald-400">📞</span>
-              <a className="hover:text-white transition-all" href="tel:+9411xxxxxxx">(+94) 11 XXX XXXX</a>
+              <a className="hover:text-white" href="tel:+9411xxxxxxx">(+94) 11 XXX XXXX</a>
             </p>
           </address>
         </div>
@@ -126,8 +95,8 @@ function Footer() {
 
       {/* Bottom Bar */}
       <div className="bg-[#02241c] border-t border-emerald-900/50 text-emerald-300/60">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between text-xs gap-4">
-          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between text-[10px] md:text-xs gap-3 text-center">
+          <div className="flex flex-wrap justify-center items-center gap-3 md:gap-6">
             <span className="flex items-center gap-1"><span className="text-yellow-500">★</span> National Green Award Gold</span>
             <span className="hidden md:inline text-emerald-800">•</span>
             <span className="flex items-center gap-1"><span className="text-green-500">✔</span> NATRUE Certified</span>
@@ -135,8 +104,8 @@ function Footer() {
             <span className="flex items-center gap-1"><span className="text-pink-400">♥</span> Cruelty-Free</span>
           </div>
 
-          <div className="text-center md:text-right">
-            &copy; {currentYear} Crystal Beauty Clear | Nature's Beauty Creations Ltd.
+          <div className="md:text-right">
+            &copy; {currentYear} Crystal Beauty Clear
           </div>
         </div>
       </div>

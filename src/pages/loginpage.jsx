@@ -17,11 +17,11 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  // FIX: Environment variable එක හරියටම ගන්න
+  // Backend URL with fallback
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   function handleLogin() {
-    if(!email || !password) {
+    if (!email || !password) {
         toast.error("Please enter email and password");
         return;
     }
@@ -39,16 +39,17 @@ export default function LoginPage() {
         // Token සහ User Data Save කිරීම
         localStorage.setItem("token", response.data.token);
         
-        // User object එක string එකක් ලෙස save කළ යුතුයි
         if (response.data.user) {
             localStorage.setItem("user", JSON.stringify(response.data.user));
         }
 
-        // Event එකක් trigger කරනවා අනිත් components (Header) update වෙන්න
+        // Header update වීමට event එකක්
         window.dispatchEvent(new Event("authChanged"));
 
-        const user = response.data.user;
-        if (user.rol === "admin") {
+        const user = response.data.user || {};
+        
+        // --- FIX: Check 'rol' instead of 'role' ---
+        if (user.rol === "admin" || user.role === "admin") {
             navigate("/admin/products");
         } else {
             navigate("/");
@@ -64,10 +65,12 @@ export default function LoginPage() {
       });
   }
 
+  const inputClasses = "w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-emerald-100/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white/20 transition-all text-center text-lg";
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[url('https://wallpapers.com/images/hd/green-background-thy1fi27vpmfr2n9.jpg')] bg-cover bg-center relative">
-      
-      {/* Dark Overlay */}
+  <div className="min-h-screen w-full flex items-center justify-center bg-[url('https://wallpapers.com/images/hd/green-background-thy1fi27vpmfr2n9.jpg')] bg-cover bg-center relative">
+    
+    {/* Dark Overlay */}
       <div className="absolute inset-0 bg-emerald-700/30 backdrop-blur-sm"></div>
 
       <div className="relative z-10 w-full max-w-[600px] h-auto min-h-[600px] bg-black/40 backdrop-blur-md border border-white/20 rounded-[3rem] shadow-2xl flex flex-col justify-center items-center p-8 sm:p-12 m-4">
@@ -87,7 +90,7 @@ export default function LoginPage() {
                 <input
                     onChange={(e) => setEmail(e.target.value)}
                     value={email}
-                    className="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-emerald-100/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white/20 transition-all text-center text-lg"
+                    className={inputClasses}
                     type="email"
                     placeholder="Email Address"
                 />
@@ -97,14 +100,14 @@ export default function LoginPage() {
                 <input
                     onChange={(e) => setPassword(e.target.value)}
                     value={password}
-                    className="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-emerald-100/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white/20 transition-all text-center text-lg"
+                    className={inputClasses}
                     type="password"
                     placeholder="Password"
                 />
             </div>
 
             <div className="flex justify-end pr-2">
-                <Link to="/forgot-password" className="text-sm text-emerald-200 hover:text-white transition-colors hover:underline underline-offset-4">
+                <Link to="/forgot-password" class="text-sm text-emerald-200 hover:text-white transition-colors hover:underline underline-offset-4">
                     Forgot Password?
                 </Link>
             </div>

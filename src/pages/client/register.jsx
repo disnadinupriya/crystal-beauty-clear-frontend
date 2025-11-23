@@ -61,7 +61,7 @@ const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL ;
     const inputClasses = "w-full px-6 py-3 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-emerald-100/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white/20 transition-all text-center text-lg";
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-[url('https://wallpapers.com/images/hd/green-background-thy1fi27vpmfr2n9.jpg')] bg-cover bg-center relative py-10">
+        <div className="min-h-screen w-full flex items-center justify-center bg-[url('login.jpg')] bg-cover bg-center relative py-10">
             
             {/* Dark Overlay for background visibility */}
             <div className="absolute inset-0 bg-emerald-700/30 backdrop-blur-sm"></div>
