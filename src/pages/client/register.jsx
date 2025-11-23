@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import Loader from "../../components/loader";
+
 
 // --- INTERNAL ICONS (For Branding Consistency) ---
 const LeafIcon = () => (
@@ -23,8 +25,7 @@ export default function RegisterPage() {
     const navigate = useNavigate();
 
     // FIX: Hardcoded for preview environment to avoid import.meta error
-    const BACKEND_URL = "http://localhost:5000"; 
-
+const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL ;
     function handleRegister() {
         if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
             toast.error("Please fill in all fields");
@@ -38,7 +39,7 @@ export default function RegisterPage() {
 
         setLoading(true);
 
-        axios.post(BACKEND_URL + "/api/user/", {
+        axios.post(VITE_BACKEND_URL + "/api/user/", {
             firstName,
             lastName,
             email,

@@ -60,7 +60,7 @@ export default function ProductOverView() {
   const [product, setProduct] = useState(null);
   const [status, setStatus] = useState("loading");
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5000";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ;
 
   useEffect(() => {
     if (status === "loading") {

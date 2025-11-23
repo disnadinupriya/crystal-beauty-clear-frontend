@@ -37,9 +37,7 @@ export default function ReviewsPage() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  // Backend URL Configuration
-  const backendUrl = "http://localhost:5000"; // Fixed for preview environment
-
+const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL ;
   useEffect(() => {
     fetchReviews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,8 +47,8 @@ export default function ReviewsPage() {
     setLoading(true);
     try {
       const url = productFilter
-        ? `${backendUrl}/api/review?product=${encodeURIComponent(productFilter)}`
-        : `${backendUrl}/api/review`;
+        ? `${VITE_BACKEND_URL}/api/review?product=${encodeURIComponent(productFilter)}`
+        : `${VITE_BACKEND_URL}/api/review`;
       
       const res = await axios.get(url);
       setReviews(Array.isArray(res.data) ? res.data : []);
@@ -91,7 +89,7 @@ export default function ReviewsPage() {
         comment: formData.comment.trim(),
       };
 
-      const res = await axios.post(`${backendUrl}/api/review`, payload);
+      const res = await axios.post(`${VITE_BACKEND_URL}/api/review`, payload);
       toast.success("Review submitted successfully!");
       setReviews((prev) => [res.data, ...prev]);
       setFormData({ name: "", product: "", rating: 5, comment: "" });

@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const [showQuickView, setShowQuickView] = useState(false);
 
   const navigate = useNavigate();
-  const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5000";
+  const backendUrl = import.meta.env.VITE_BACKEND_URL ;
 
   useEffect(() => {
     const init = async () => {
@@ -43,7 +43,7 @@ export default function ProfilePage() {
         return;
       }
 
-      const res = await axios.get(`${backendUrl}/api/user/current`, {
+      const res = await axios.get(`${VITE_BACKEND_URL}/api/user/current`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -69,7 +69,7 @@ export default function ProfilePage() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await axios.get(`${backendUrl}/api/order`, {
+      const res = await axios.get(`${VITE_BACKEND_URL}/api/order`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -94,7 +94,7 @@ export default function ProfilePage() {
         return;
       }
 
-      const res = await axios.put(`${backendUrl}/api/user/profile`, formData, {
+      const res = await axios.put(`${VITE_BACKEND_URL}/api/user/profile`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

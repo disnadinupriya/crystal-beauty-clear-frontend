@@ -20,7 +20,7 @@ export default function ForgetPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const BACKEND_URL = "http://localhost:5000"; // Fixed for preview
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL ;
 
   // Helper function to handle errors
   const handleError = (error) => {
@@ -38,7 +38,7 @@ export default function ForgetPassword() {
 
     setLoading(true);
     axios
-      .post(`${BACKEND_URL}/api/user/sendMail`, { email })
+      .post(`${VITE_BACKEND_URL}/api/user/sendMail`, { email })
       .then((response) => {
         toast.success("OTP sent to your email!");
         setEmailSent(true);
@@ -58,7 +58,7 @@ export default function ForgetPassword() {
 
     setLoading(true);
     axios
-      .post(`${BACKEND_URL}/api/user/changePw`, {
+      .post(`${VITE_BACKEND_URL}/api/user/changePw`, {
         email,
         otp,
         newPassword: password,

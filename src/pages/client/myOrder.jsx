@@ -25,7 +25,7 @@ const MyOrder = () => {
         try {
             setLoading(true);
             // Changed for Preview stability (You can revert to import.meta.env.VITE_BACKEND_URL)
-            const backend = "http://localhost:5000"; 
+            const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
             const token = localStorage.getItem("token");
             
             // Note: In this preview, token might be missing, so it might show error or empty.
@@ -55,7 +55,7 @@ const MyOrder = () => {
                 return;
             }
 
-            const res = await axios.get(`${backend}/api/order`, {
+            const res = await axios.get(`${VITE_BACKEND_URL}/api/order`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

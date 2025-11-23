@@ -55,7 +55,7 @@ export default function CheckOutPage() {
 
     try {
       console.log("Placing order, payload:", orderData);
-      const url = (import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5000").replace(/\/$/, "") + "/api/order";
+      const url = (import.meta.env.VITE_BACKEND_URL || "") + "/api/order";
       const response = await axios.post(url, orderData, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
