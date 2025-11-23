@@ -23,6 +23,9 @@ export default function EditProductForm() {
   const [images, setImages] = useState([]); 
   const [imagePreviews, setImagePreviews] = useState([]);
 
+  // Safe Backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
   // Load Data on Mount
   useEffect(() => {
     if (location.state) {
@@ -35,18 +38,15 @@ export default function EditProductForm() {
       setDescription(p.description || "");
       setStock(p.stock || "");
 
-      // --- නිවැරදි කිරීම 1: පරණ පින්තූර load කරගැනීම ---
-      // Backend එකෙන් එන්නේ 'image' ද 'Image' ද කියා දෙකම පරීක්ෂා කරයි
+      // --- Correctly load existing images ---
       const incomingImages = p.image || p.Image;
 
       if (incomingImages) {
-         // Array එකක් නොවේ නම් Array එකක් කරගන්න
          const imgs = Array.isArray(incomingImages) ? incomingImages : [incomingImages];
-         // හිස් අගයන් (null/undefined) ඉවත් කරන්න
          const validImgs = imgs.filter(img => img);
          
-         setImages(validImgs); // පරණ URLs කෙලින්ම state එකට දානවා
-         setImagePreviews(validImgs); // Previews වලටත් එම URLs දානවා
+         setImages(validImgs); 
+         setImagePreviews(validImgs); 
       }
     } else {
       toast.error("No product selected");
@@ -81,22 +81,17 @@ export default function EditProductForm() {
     setIsLoading(true);
 
     try {
-      // --- පින්තූර Process කිරීම ---
-      // මෙතැනදී පරණ URLs (Strings) සහ අලුත් Files වෙන් කර හඳුනා ගනී
+      // --- Image Processing ---
       const imagePromises = images.map((img) => {
         if (typeof img === 'string') {
-          // මේක පරණ URL එකක්. Upload කරන්න ඕන නෑ. කෙලින්ම return කරනවා.
           return Promise.resolve(img);
         } else {
-          // මේක අලුත් File එකක්. Upload කරලා අලුත් URL එක ගන්නවා.
           return mediaUpload(img);
         }
       });
 
-      // සියලු පින්තූරවල අවසාන URLs ලබා ගැනීම (පරණ + අලුත්)
       const finalImageUrls = await Promise.all(imagePromises);
-
-      console.log("Final Images to Save:", finalImageUrls); // Debugging
+      console.log("Final Images to Save:", finalImageUrls); 
 
       const altNameInArray = altName.split(",").map((s) => s.trim()).filter(s => s);
 
@@ -107,14 +102,12 @@ export default function EditProductForm() {
         price: Number(price),
         lablePrice: Number(lablePrice) || 0,
         description,
-        // --- නිවැරදි කිරීම 2: Field Name එක 'image' ලෙස වෙනස් කිරීම ---
-        // Backend එක බලාපොරොත්තු වෙන්නේ simple 'image' යි.
         image: finalImageUrls, 
         stock: parseInt(stock, 10) || 0,
       };
 
       const token = localStorage.getItem("token");
-      await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/product/${productid}`, updatedProduct, {
+      await axios.put(`${BACKEND_URL}/api/product/${productid}`, updatedProduct, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -129,25 +122,26 @@ export default function EditProductForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center items-start py-10 px-4">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-5xl overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex justify-center items-start py-6 px-4 sm:py-10">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl overflow-hidden border border-gray-100">
         
         {/* --- Header --- */}
-        <div className="bg-gradient-to-r from-orange-600 to-red-500 px-8 py-5 text-white flex justify-between items-center">
-          <h1 className="text-2xl font-bold flex items-center gap-3">
-            <FaEdit /> Edit Product
+        <div className="bg-gradient-to-r from-orange-600 to-red-500 px-5 py-5 sm:px-8 sm:py-6 text-white flex justify-between items-center">
+          <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2 sm:gap-3">
+            <FaEdit className="text-xl sm:text-2xl" /> 
+            <span>Edit Product</span>
           </h1>
-          <Link to="/admin/products" className="text-white hover:text-gray-200 flex items-center gap-2 transition font-medium">
+          <Link to="/admin/products" className="text-white hover:text-gray-200 flex items-center gap-2 text-sm sm:text-base font-medium transition">
             <FaArrowLeft /> Back
           </Link>
         </div>
 
         {/* --- Form Content --- */}
-        <form onSubmit={handleSubmit} className="p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
             
             {/* Left Column: Text Inputs */}
-            <div className="space-y-5">
+            <div className="space-y-5 sm:space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">ID (Read-only)</label>
                 <input 
@@ -179,7 +173,7 @@ export default function EditProductForm() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-2 gap-4 sm:gap-5">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Price</label>
                   <input 
@@ -212,41 +206,41 @@ export default function EditProductForm() {
             </div>
 
             {/* Right Column: Description & Images */}
-            <div className="space-y-5 flex flex-col h-full">
+            <div className="space-y-5 sm:space-y-6 flex flex-col h-full">
               <div className="flex-1">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
                 <textarea 
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)} 
-                  className="w-full h-48 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition resize-none" 
+                  className="w-full h-40 sm:h-48 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition resize-none" 
                 />
               </div>
 
               {/* Image Upload Area */}
-              <div className="border-2 border-dashed border-orange-300 bg-orange-50 rounded-xl p-6 text-center cursor-pointer hover:bg-orange-100 transition relative">
+              <div className="border-2 border-dashed border-orange-300 bg-orange-50 rounded-xl p-6 text-center cursor-pointer hover:bg-orange-100 transition relative group">
                  <input 
                    type="file" 
                    multiple 
                    accept="image/*" 
                    onChange={handleImageChange} 
-                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                  />
                  <div className="flex flex-col items-center">
-                    <FaCloudUploadAlt className="text-4xl text-orange-500 mb-2" />
-                    <span className="text-sm font-bold text-gray-700">Add More Images</span>
+                    <FaCloudUploadAlt className="text-4xl text-orange-500 mb-2 group-hover:scale-110 transition-transform" />
+                    <span className="text-sm font-bold text-gray-700 group-hover:text-orange-700">Add More Images</span>
                  </div>
               </div>
 
               {/* Image Previews */}
               {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-5 gap-3 mt-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3 mt-2">
                   {imagePreviews.map((src, index) => (
                     <div key={index} className="relative group w-full aspect-square bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                       <img src={src} alt="Preview" className="w-full h-full object-cover" />
                       <button 
                         type="button" 
                         onClick={() => removeImage(index)} 
-                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition transform hover:scale-110"
+                        className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all shadow-md transform hover:scale-110"
                       >
                         <FaTimes size={10} />
                       </button>
@@ -257,21 +251,21 @@ export default function EditProductForm() {
             </div>
           </div>
 
-          <hr className="my-8 border-gray-200" />
+          <hr className="my-6 sm:my-8 border-gray-200" />
 
           {/* --- Bottom Buttons --- */}
-          <div className="flex justify-end gap-4">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
             <button 
               type="button"
               onClick={() => navigate("/admin/products")}
-              className="px-6 py-2.5 rounded-lg text-gray-700 font-semibold bg-gray-100 hover:bg-gray-200 transition"
+              className="px-6 py-3 rounded-lg text-gray-700 font-semibold bg-gray-100 hover:bg-gray-200 transition w-full sm:w-auto"
             >
               Cancel
             </button>
             <button 
               type="submit" 
               disabled={isLoading} 
-              className={`flex items-center gap-2 px-8 py-2.5 rounded-lg text-white font-bold shadow-lg transition transform hover:-translate-y-0.5 ${isLoading ? 'bg-orange-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'}`}
+              className={`flex items-center justify-center gap-2 px-8 py-3 rounded-lg text-white font-bold shadow-lg transition transform hover:-translate-y-0.5 w-full sm:w-auto ${isLoading ? 'bg-orange-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'}`}
             >
               {isLoading ? "Updating..." : <><FaSave /> Update Product</>}
             </button>
