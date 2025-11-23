@@ -7,44 +7,46 @@ export default function UserState() {
 
   const fetchUser = async () => {
     const token = localStorage.getItem("token");
+    
+    // Token එක නැත්නම් කෙලින්ම user null කරන්න
     if (!token) {
       setUser(null);
       return;
     }
 
     try {
-      // Use environment variable with fallback, ensuring no trailing slash issues
       const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-      const base = backendUrl.replace(/\/$/, "");
       
-      const res = await axios.get(base + "/api/user/current", {
+      const res = await axios.get(`${backendUrl}/api/user/current`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("User fetched successfully:", res.data);
       
-      // Handle potential response variations (res.data.user vs res.data)
+      // දත්ත එන ආකාරය අනුව (res.data.user හෝ res.data)
       const userData = res.data.user || res.data;
       
       if (userData) {
         setUser(userData);
-        // Update cache
-        try {
-          localStorage.setItem("user", JSON.stringify(userData));
-        } catch (e) { /* ignore */ }
-      } else {
-        // If response is valid but empty/weird, log out
-        setUser(null);
+        // Cache එක update කිරීම
+        localStorage.setItem("user", JSON.stringify(userData));
       }
-
     } catch (error) {
       console.error("Error fetching user:", error);
-      // Fallback to cache
-      try {
-        const raw = localStorage.getItem("user");
-        if (raw) setUser(JSON.parse(raw));
-        else setUser(null);
-      } catch (e) {
+      
+      // --- FIX: 401 ආවොත් Auto Logout කිරීම ---
+      if (error.response && error.response.status === 401) {
+        console.warn("Session expired or invalid token. Logging out...");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         setUser(null);
+        // පිටුව refresh කිරීම හෝ login එකට යැවීම අවශ්‍ය නම් මෙතන ලියන්න පුළුවන්
+      } else {
+        // වෙනත් error එකක් නම්, cache එකෙන් පෙන්වන්න උත්සාහ කරන්න
+        try {
+          const raw = localStorage.getItem("user");
+          if (raw) setUser(JSON.parse(raw));
+        } catch (e) {
+          setUser(null);
+        }
       }
     }
   };
@@ -52,9 +54,10 @@ export default function UserState() {
   useEffect(() => {
     fetchUser();
 
+    // Login/Logout වෙනකොට update වෙන්න
     const handler = () => fetchUser();
     window.addEventListener("authChanged", handler);
-    window.addEventListener("storage", handler);
+    window.addEventListener("storage", handler); // Tab මාරු වෙනකොට update වෙන්න
 
     return () => {
       window.removeEventListener("authChanged", handler);
@@ -62,44 +65,27 @@ export default function UserState() {
     };
   }, []);
 
-  // Helper to safely get name for avatar
-  const getUserName = () => {
-    if (!user) return "U";
-    return user.firstName || user.email || "U";
-  };
-
-  // Helper to safely get display name
-  const getDisplayName = () => {
-    if (!user) return "User";
-    return user.firstName || user.email?.split('@')[0] || "User";
-  };
+  // Helper functions for UI
+  const getUserName = () => user?.firstName || user?.email || "U";
+  const getDisplayName = () => user?.firstName || user?.email?.split('@')[0] || "User";
 
   return (
     <div className="flex items-center">
-      {/* Check for !user handles both null and undefined safely */}
       {!user ? (
         // --- LOGGED OUT STATE ---
         <div className="flex items-center gap-3">
-          <Link
-            to="/login"
-            className="text-emerald-200 hover:text-white text-sm font-medium transition-colors tracking-wide"
-          >
+          <Link to="/login" className="text-emerald-200 hover:text-white text-sm font-medium transition-colors tracking-wide">
             Login
           </Link>
-          <Link
-            to="/register"
-            className="bg-white text-emerald-900 hover:bg-emerald-50 px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm transition-all hover:scale-105"
-          >
+          <Link to="/register" className="bg-white text-emerald-900 hover:bg-emerald-50 px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm transition-all hover:scale-105">
             Register
           </Link>
         </div>
       ) : (
         // --- LOGGED IN STATE ---
         <div className="flex items-center gap-3">
-          {/* User Info */}
           <div className="flex items-center gap-2 group cursor-default">
             <div className="w-8 h-8 rounded-full bg-emerald-800 border border-emerald-400/50 flex items-center justify-center overflow-hidden shadow-inner">
-                {/* Generate initial avatar or show user img */}
                 <img 
                     src={`https://ui-avatars.com/api/?name=${getUserName()}&background=065f46&color=ecfdf5`} 
                     alt="User" 
@@ -114,23 +100,20 @@ export default function UserState() {
             </div>
           </div>
 
-          {/* Vertical Divider */}
           <div className="h-6 w-px bg-emerald-200 mx-1"></div>
 
-          {/* Logout Button */}
           <button
             className="text-red-300 hover:text-red-100 hover:bg-red-500/20 p-1.5 rounded-lg transition-all"
             title="Logout"
             onClick={() => {
               localStorage.removeItem("token");
               localStorage.removeItem("user");
-              // Notify other components
               window.dispatchEvent(new Event("authChanged"));
-              // Redirect
+              setUser(null);
               window.location.href = "/login";
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg"color="yellow" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
                 <line x1="21" y1="12" x2="9" y2="12"></line>
